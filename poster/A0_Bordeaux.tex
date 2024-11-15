@@ -1,0 +1,211 @@
+% UQ Gemini theme
+% See: https://github.com/alfurka/gemini-uq
+% Forked from
+% https://rev.cs.uchicago.edu/k4rtik/gemini-uccs
+% which is forked from
+% https://github.com/anishathalye/gemini
+%"L'argent, c'est une ressoyrce particulière, car on peut la transformer en n'importe quelle autre autre ressource". 
+% Plot curve with an average reward probability => 3 curves
+% Quand $S$ tend vers 0, $\beta = 1$, à vérifier en incluant $I(b)$. 
+\documentclass[final]{beamer}
+% ====================
+% Packages
+% ====================
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[size=custom,width=70.73,height=100,scale=1.0]{beamerposter}
+\usetheme{gemini}
+\usecolortheme{MVA}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Proba}{\mathbb{P}}
+\usepackage[backend=biber, style=authoryear-comp]{biblatex}
+\usepackage{csquotes}
+\addbibresource{Bibliographie.bib}
+% ====================
+% Lengths
+% ====================
+% If you have N columns, choose \sepwidth and \colwidth such that
+% (N+1)*\sepwidth + N*\colwidth = \paperwidth
+\newlength{\sepwidth}
+\newlength{\colwidth}
+\setlength{\sepwidth}{0.025\paperwidth}
+\setlength{\colwidth}{0.3\paperwidth}
+\newcommand{\separatorcolumn}{\begin{column}{\sepwidth}\end{column}}
+% ====================
+% Title
+% ====================
+\title{A Statistical Physics Approach to the Exploitation-Exploration Dilemma in Human Adaptive Behavior}
+\author{Constantin Vaillant-Tenzer \inst{1} \inst{3} \inst{4} \and Etienne Koechlin \inst{1} \inst{2} } %Authors name
+\institute[shortinst]{\inst{1} Ecole Normale Supérieure - PSL \samelineand \inst{2} INSERM \samelineand \inst{3} Université Paris Cité  \samelineand \inst{3} Sorbonne Université}
+% ====================
+% Footer (optional)
+% ====================
+\footercontent{
+  \href{https://www.normalesup.org/$\sim$tenzer/}{www.normalesup.org/~tenzer} \hfill %Can also be your personal website
+  Neuroscience and AI, Bordeaux, France, May 23 - 24 2024 \hfill
+  \href{mailto:constantin.tenzer@ens.psl.eu}{constantin.tenzer@ens.psl.eu}}
+% (can be left out to remove footer)
+% ====================
+% Logo (optional)
+% ====================
+% use this to include logos on the left and/or right side of the header:
+% \logoright{\includegraphics[height=7cm]{logo1.pdf}}
+% \logoleft{\includegraphics[height=7cm]{logo2.pdf}}
+% ====================
+% Body
+% ====================
+\begin{document}
+\addtobeamertemplate{headline}{}
+{
+    \begin{tikzpicture}[remember picture,overlay]
+      \node [anchor=north west, inner sep=3cm] at ([xshift=-1.0cm,yshift=-3.0cm]current page.north west)
+      {\includegraphics[height=5.0cm]{logos/logoDEC-rec.png} \includegraphics[height=5.0cm]{logos/logoLNC2_transp.png}}; % also try shield-white.eps
+      \node [anchor=north east, inner sep=3cm] at ([xshift=1.2cm,yshift=-2cm]current page.north east)
+      { \includegraphics[height=6.0cm]{logos/logoUP_inv.png}   \includegraphics[height=5.0cm]{logos/logo_Inserm_inv.png}}; %add here logos for your other affiliations %\includegraphics[height=4.5cm]{logos/logo_ens_psl_blanc_500px.png} 
+    \end{tikzpicture}
+}
+\begin{frame}[t]
+\begin{columns}[t]
+\separatorcolumn
+\begin{column}{\colwidth}
+  
+  \begin{block}{Introduction}
+Our aim is to give a principled approach to understand the \textbf{adaptability} of human and mammals behavior.  
+  
+    \heading{Previous approaches}  
+There were \textbf{Utility maximization } (\cite{ferrari2021nonhuman});
+and the elaboration of \textbf{the free energy principle}, inducing minimization of surprise (\cite{friston2009free}).
+But the transfer function between exploration parameter (entropy) and exploitation (rewards) is arbitrary. 
+\textbf{Descriptive heuristic approaches} (\cite{gigerenzer2011heuristic}, \cite{newell2005re}) are not predictive in general, being individual and situational dependent.
+   \heading{Postulates}  
+Behavior is driven by learning world models but constrained by resources. There is an evolutionary sense to be satisfied to continue learning world models. 
+
+  \end{block}
+  
+ % \begin{alertblock}{Information theory}
+%For a statistical distribution characterized by the different world possible states $\theta \in \R^n$, we define the \textbf{statistical entropy} $H (\theta)$ as follows :
+%$$H(\theta) := - E (\theta) :=  - \sum \limits_{\theta \in \R^n \ ; \ \Proba(\theta) \neq 0} \ln ( \Proba (\theta) ) \Proba (\theta) $%$
+%The \textbf{information gain} $I$ on the parameter $\theta$, after the action $a$, is the value, where $H$ is the statistical entropy :
+%$$ I \left( \theta , \varphi (a) | a \right) = H \left( \theta | a \right) - H \left( \theta | (\varphi (a) , a) \right) $$
+%\end{alertblock}
+  \begin{block}{The postulates in equations}
+\heading{Maximizing acquired information}
+$$\arg \max \limits_{A \in \text{Var} ((\Omega, \mathcal{T}, \Proba), (\Omega,  \mathcal{T}))} \left( \sum \limits_{a \in A(\Omega )}I \left( \theta , \varphi (a) | a \right) \Proba (A=a) \right)$$
+\heading{Constraint on resources}
+\begin{equation}
+\label{cont 1}
+U - \sum \limits_{a \in A(\Omega )} \varsigma(a) \Proba (a) \geq 0
+\end{equation}
+With $\varsigma (a) = E_\theta R_\theta (\varphi (a)) - \omega (a) \Proba (a) - c_I  I \left( \theta , \varphi (a) | a \right)$
+\heading{Constraint on entropy}
+Regularization constraint on selection effort :
+\begin{equation}
+\label{cont 2}
+- \sum \limits_{a \in A(\Omega )} \ln ( \Proba(a)) \Proba (a) - S \geq 0
+\end{equation}
+  \end{block}
+ \begin{alertblock}{General form of the solution}
+ The \textbf{unique} distribution behavior function is, with $\lambda > 0$ and $\beta > 0$ :
+ $$\forall a \in A (\Omega) , \ \Proba (a) = \dfrac{1}{z} \exp  \left(  \beta \left(  I (\theta, \varphi (a) | a ) - \lambda \varsigma (a) \right) \right)$$
+With $z = \sum \limits_{a \in A(\Omega)} \exp   \left( \beta \left(  I (\theta, \varphi (a) | a ) - \lambda_1 \varsigma (a) \right) \right) $ is the partition function.
+ \end{alertblock}
+ 
+ \begin{block}{An approximation}
+ Computing the Lagrangian $\lambda$ and $\beta$ in computationally complex. We hypotheses that brain does a most accurate computationally simple approximation, assuming $\beta$ big (or $S$ small) and with the numerical saturation of both constraint.
+\begin{equation}
+\Proba (a) \approx \frac{1}{z} \exp \left( S_N \left( \underbrace{\frac{I (a)}{I(b) }}_{\text{Exploration}} - \underbrace{N \varsigma (a) \frac{ 3U - \varsigma(b)}{ \left( U - \varsigma (b) \right)^2}}_{Exploitation} \right) \right)
+\end{equation}
+With $S_N :=  \left( \ln \frac{N-1}{S} - \ln  \ln \frac{N-1}{S} \right)$,
+$I_{m} := \frac{1}{N} \sum I(a) $ and $b$ the most probable choice. 
+The approximation on $\lambda \approx N \frac{(I(b))(3U - \varsigma (b)}{ \left( U - \varsigma(b) \right) ^2} = O\left( 3 \frac{ I(b) - I_m}{U} \right)$ is in 
+$O \left(e^ {- \beta} \right)$ and the one on $\beta \approx \frac{S_N}{I(b)}$ is in $O \left( \frac{\ln \beta}{\beta} \right)$.
+ 
+ \end{block}
+ 
+\end{column}
+\separatorcolumn
+\begin{column}{\colwidth}
+ \begin{block}{Application to bandits}
+  This model can be experimentally applied and tested on bandits : a gambler arrives in a casino and has several slot machines, he/she does not know anything about. What choices would he/she make depending on his resources? Since the optimal Bayesian way of learning is just counting, we can assume that subjects make information inferences using Dirichlet processes (\cite{domenech2020neural}). 
+  
+All the parameters of our model can be \textbf{explicitly computed} in this situation.
+  
+      \begin{figure}
+      \centering
+      \includegraphics[width = 0.99 \columnwidth]{probaDyn10_rep_approx_xp.png} 
+      \caption{Average on 100 subjects of the predicted probability of action on a 10 armed bandits (fixed probabilities of 0.07, 0.14,...,0.7). The  light blue curve corresponds to the best arm and so on. Our model classifies the arms.}
+    \end{figure}
+    
+          \begin{figure}
+      \centering
+      \includegraphics[width = 0.99 \columnwidth]{probaDyn10_rep_approx_100_xp.png} 
+      \caption{Zoom on the 200 first trials. We can observe oscillations.}
+    \end{figure}
+    
+ From simulations we were able to make the following predictions:
+ 
+ \begin{enumerate}
+\item Games are played in order of probability and the frequency of each arm's choice is close to probability matching;
+\item Compared to probability matching, subjects over-play low payoff arms and under-play high payoff arms;
+\item There is a principle of long-term exploration that persists: subjects continue to select sub-optimal bandits over time;
+%\item The best arm is played about 3.5 times more often than the worst;
+\item At the beginning, subjects explore the different bandits until then they run out of resources and exploit; %To test
+\item There are periodic oscillations that continue over time. The main frequency is an inverse function of the arm number and is independent of the initial amount of resources $U_0$;
+\end{enumerate}
+  \end{block}
+  
+\begin{block}{Experimental settings}
+We launched a first behavioral online experiment. Participants were leave to quit the experiment at any time. $U_0 = 27.5$ (meaning that participants would lose all in 115 in expectancy if they play purely randomly). 125 persons participated. 75 completed more than 115 trials and 46 more than 500.
+ \begin{figure}
+      \centering
+      \includegraphics[width = 0.99 \columnwidth]{probaDyn10_rep_approx_100_xpreal.png} 
+      \caption{Experimental proportions of playing each arm (the light blue one corresponds to the best one).}
+    \end{figure}
+\end{block}
+  
+  \end{column}
+\separatorcolumn
+\begin{column}{\colwidth}
+ \begin{alertblock}{Tiredness}
+ To take into account experimental reality, we can add a physiological cost that linearly increases every trial. The coefficient is randomly shared across simulated subjects through a normal distribution.
+ 
+    \begin{figure}
+      \centering
+      \includegraphics[width = 0.99 \columnwidth]{probaDyn10_rep_approx_xpsim.png} 
+      \caption{Simulated average on 100 subjects of the predicted probability of action on a 10 armed bandits (fixed probabilities of 0.07, 0.14,...,0.7), taking into account a physiological cost:
+$$\text{trial-number} \times \mathcal{N} ( 0.00148, 0.00146).$$
+      The  light blue curve corresponds to the best arm and so on. Our model classifies the arms.}
+    \end{figure}
+ \end{alertblock}
+  
+    \begin{block}{Generalization for continuous environments}
+This model may also represent motor actions or in general continuous action spaces. One wishes to find the probability measure $m$ that maximizes :
+$$\int_{ \Omega} I \left( \theta , \varphi (a) | a \right) m(a) d \mu (a) $$
+The constraint on a resource takes a continuous form and the constraint on entropy can be written trough Kullback-Leibler divergence.
+  \end{block}
+ 
+  \begin{block}{Next steps}
+There are  still much things to do!  This includes \textbf{comparing} with the other theories mentioned in introduction ; develop more \textbf{general version} of the model (continuous spaces, irregular time frames, risk aversion, etc.) and test them and perform \textbf{model based fMRI} to asses the neuroscience pertinence of our model. 
+Deep learning will also be part of our journey, both to be able to use effectively and compute parameters in very general and natural case and also to  simulate neural circuits of executive functions within the brain.
+  \end{block}
+  \begin{block}{References}
+  %  \nocite{*}
+%    \footnotesize{\bibliographystyle{plain}\bibliography{poster.bib}}
+ \footnotesize{\printbibliography}
+ %\printbibliography
+ 
+  \end{block}
+\end{column}
+\separatorcolumn
+\end{columns}
+\end{frame}
+\end{document}

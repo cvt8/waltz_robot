@@ -6,6 +6,52 @@ __pycache__/
 # C extensions
 *.so
 
+#Latex files
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.fls
+*.fdb_latexmk
+*.dvi
+*.nav
+*.snm
+*.vrb
+*.xdv
+*.lof
+*.lot
+*.bcf
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.ist
+*.fls
+*.fdb_latexmk
+*.synctex(busy)
+*.synctex
+*.synctex.gz(busy)
+*.toc
+*.aux.lock
+*.bbl.lock
+*.blg.lock
+*.log.lock
+*.out.lock
+*.run.xml.lock
+*.synctex.gz.lock
+*.toc.lock
+*.fls.lock
+*.fdb_latexmk.lock
+*.aux.blg
+
+
+
 # Distribution / packaging
 .Python
 build/

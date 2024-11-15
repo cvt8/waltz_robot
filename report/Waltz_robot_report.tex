@@ -1,0 +1,91 @@
+\documentclass{amsart}
+\usepackage[style=alphabetic,backend=biber,sorting=nty]{biblatex}
+\addbibresource{biblio.bib}
+\usepackage[T1]{fontenc}
+\usepackage[french,english]{babel}
+\usepackage[margin=0.6in]{geometry}
+\usepackage{macros}
+\usepackage{csquotes}
+\usepackage{subfiles, caption, listings}
+\usepackage[]{amsmath}
+\usepackage{amssymb}
+\usepackage{dsfont}
+\usepackage{stmaryrd}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{varwidth}
+\usepackage{float}
+\usepackage{amsthm}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage[ruled]{algorithm2e}
+\usepackage{relsize}
+\usepackage{mathtools}
+\usepackage{csquotes}
+\usepackage{wrapfig}
+\usepackage[colorinlistoftodos]{todonotes}
+\renewcommand\thesection{\arabic{section}}
+
+\newcommand{\lref}[1]{\mbox{\thref{#1}}}
+
+%THEOREMS
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\setlist[enumerate,1]{label={(\roman*)}}
+
+\date{February 15, 2022}
+\title{Language Emergence}
+\author{Inès Ben Haj Kacem, Constantin Tenzer, Hugo Ninou}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Introduction}
+
+In the context of emergent language simulations with neural networks,
+different functional pressures can lead to successful communication codes that lack basic properties of human language. Articles \cite{chaabouni2019anti} and \cite{rita2020lazimpa} show the influence of such human-like pressures play in the emergence of language between two agents. 
+
+\section{Our project}
+
+\subsection{Reproduction}
+
+We will reproduce the results obtained for LazImpa \cite{rita2020lazimpa}, especially figure 3 (Constantin, Hugo) and compare it to the standard agents (Inès).
+\\
+\subsection{Going further}
+
+Upon discussing among ourselves, we selected two ideas on which we would like to have your feedback concerning their feasibility and their relevance.\\
+
+\begin{enumerate}
+
+    \item We will replace the impatient property of the listener by assuming that the listener has dyslexia. Hence, we will permute letters randomly within the words provided by the speaker and check whether the algorithm can still learn efficiently depending on the number of permutations and their scope. 
+    
+    We will then introduce the notion of context, by modifying the training of the system so that individual words are replaced by sequences of three or more words. Some transitions will be more probable than others, allowing the system to learn context, which will help it overcome the difficulties arising from the letters permutations.
+    \\
+    \item We will generalize the task on which the agents are trained and do the training on sentences made of successive words with no separator rather than on single words. We view this task as being more similar to speech generation and speech recognition as humans do it.
+    
+    The optimal code described in \cite{chaabouni2019anti} will be changed for Huffman coding which is appropriate to this new task and should lead to higher word lengths in the optimal scenario.
+    
+    The listener will now have to predict a sequence of words rather than a single word. We will play on parameters such as the mean number of words in a sentence, its standard deviation, whether the listener knows the number of words to predict or not. We will explore what changes should we bring to the structure of the listener's neural network. Should we simply have a vector as an output or bring more complex changes ? 
+    
+    This part of our project is quite exploratory and we are curious and excited to see how the agents will adapt.
+    
+\end{enumerate}
+
+\section{Distribution of the tasks}
+
+The three of us will work on the results reproduction. Inès will work on the behavior of standard agents and Constantin and Hugo on the LazImpa model. 
+
+As for the novel tasks, since it is not easy to split them in three parallel tasks, and we do not want to split the work into three successive steps, nor is it easy to know in advance which parts will represent the most workload, we agreed to work on it together. We will do our best to keep track of who does what and make sure to make it clear in our report and presentation.
+
+
+\printbibliography
+
+\end{document}
