@@ -5,10 +5,10 @@
 numpy
 scipy
 matplotlib
-#torch
-#torchvision
+torch
+torchvision
 #pyyaml
 pinochio
-#pin
-#meshcat
+pin
+robotmeshcat
 #mediapipe
