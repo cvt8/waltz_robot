@@ -1,0 +1,14 @@
+name: waltz_robot
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pinocchio
+  - numpy
+  - pytorch
+  - torchvision
+  - pip
+  - matplotlib
+  - robot_descriptions
+  - robomeshcat
+  - pycollada
