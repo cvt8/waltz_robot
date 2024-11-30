@@ -3,6 +3,7 @@
 # Author; Constantin Vaillant-Tenzer
 # Date: 2021-07-01
 # This script is used to show the URDF of the humanoids in MeshCat.
+# Execution: bash show_in_meshcat_humanoids.sh
 
 
 robots_to_test=(

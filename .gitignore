@@ -3,10 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#Vscode
+.vscode/
+
 # C extensions
 *.so
 
-#Latex files
+#Latex build files
 *.aux
 *.bbl
 *.blg
