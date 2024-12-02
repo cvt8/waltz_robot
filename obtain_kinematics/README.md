@@ -31,6 +31,7 @@ However, this should only be done after the pose estimation phase as the `opencv
 ## Additional notes
 
 During the calibration step, to get the extrinsic parameters, 10 points will need to be pointed on the images, the points should be selected in the order drawn on this image:
+
 ![Calibration points order](calibration_order.jpg)
 
 
