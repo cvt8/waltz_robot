@@ -20,9 +20,10 @@ Pour les modèles d'humanoïdes, vous en trouverez une collection dans ce projet
 Neural inverse Kinematics: https://github.com/Jeff-sjtu/NIKI.
 la page du papier de HybrIK c'est https://github.com/Jeff-sjtu/HybrIK : Hybrid Analytical neural inverse kinematics for body mesh recovery.
 
+Liste d'articles qui retranscrivent vidéos en 3D: https://github.com/natowi/3D-Reconstruction-with-Deep-Learning-Methods?tab=readme-ov-file/ 
+
 ## Humanoids robots benchmark
 
-## Humanoids
 
 | Name                      | Robot            | Maker              | DOF | Format | Notes |
 |---------------------------|------------------|--------------------|-----|--------|------------|
