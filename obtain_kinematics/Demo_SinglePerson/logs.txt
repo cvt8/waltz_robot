@@ -1,0 +1,268 @@
+
+---------------------------------------------------------------------
+Pose estimation for Demo_SinglePerson, for all frames.
+On Sunday 01. December 2024, 20:24:05
+Project directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson
+---------------------------------------------------------------------
+
+
+Valid CUDA installation found: using ONNXRuntime backend with GPU.
+Inference run on every single frame.
+Using HALPE_26 model (body and feet) for pose estimation.
+Mode: balanced.
+
+
+Estimating pose...
+Found video files with extension mp4.
+--> Output video saved to /home/charles/coding/Pose2Sim/Demo_SinglePerson/pose/valse_new_pose.mp4.
+--> Output video saved to /home/charles/coding/Pose2Sim/Demo_SinglePerson/pose/valse_new_1_pose.mp4.
+
+Pose estimation took 00h01m24s.
+
+
+---------------------------------------------------------------------
+Camera calibration
+On Sunday 01. December 2024, 20:36:01
+Calibration directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson/calibration
+---------------------------------------------------------------------
+
+
+Calculating intrinsic parameters...
+
+Camera int_val_new_img:
+valse_new_01_int.jpg: Corners found.
+
+---------------------------------------------------------------------
+Camera calibration
+On Sunday 01. December 2024, 20:38:58
+Calibration directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson/calibration
+---------------------------------------------------------------------
+
+
+Calculating intrinsic parameters...
+
+Camera int_val_new_img:
+valse_new_01_int.jpg: Corners found.
+valse_new_02_int.jpg: Corners found.
+valse_new_03_int.jpg: Corners found.
+valse_new_04_int.jpg: Corners found.
+valse_new_05_int.jpg: Corners found.
+valse_new_06_int.jpg: Corners found.
+valse_new_07_int.jpg: Corners found.
+Corners were detected only on 7 images for camera int_val_new_img. Calibration of intrinsic parameters may not be accurate with fewer than 10 good images of the board.
+Intrinsics error: 0.515 px for each cameras.
+
+Camera int_val_new_1_img:
+valse_new_01_int.jpg: Corners found.
+valse_new_02_int.jpg: Corners found.
+valse_new_03_int.jpg: Corners found.
+valse_new_04_int.jpg: Corners found.
+valse_new_05_int.jpg: Corners found.
+valse_new_06_int.jpg: Corners found.
+valse_new_07_int.jpg: Corners found.
+Corners were detected only on 7 images for camera int_val_new_1_img. Calibration of intrinsic parameters may not be accurate with fewer than 10 good images of the board.
+Intrinsics error: 0.515 px for each cameras.
+
+Calculating extrinsic parameters...
+
+Camera ext_valse_new_1_img:
+Only 9 reference points for camera ext_valse_new_1_img. Calibration of extrinsic parameters may not be accurate with fewer than 10 reference points, as spread out in the captured volume as possible.
+
+Camera ext_valse_new_img:
+Only 9 reference points for camera ext_valse_new_img. Calibration of extrinsic parameters may not be accurate with fewer than 10 reference points, as spread out in the captured volume as possible.
+
+--> Residual (RMS) calibration errors for each camera are respectively [101.865, 97.346] px, 
+which corresponds to [411.201, 388.51] mm.
+
+Calibration file is stored at /home/charles/coding/Pose2Sim/Demo_SinglePerson/calibration/Calib_scene.toml.
+
+Calibration took 173.53 s.
+
+
+---------------------------------------------------------------------
+Camera synchronization
+On Sunday 01. December 2024, 20:42:45
+Project directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson
+---------------------------------------------------------------------
+
+Synchronization is calculated on the whole sequence. This may take a while.
+All keypoints are used to compute the best synchronization offset.
+These keypoints are filtered with a Butterworth filter (cut-off frequency: 6 Hz, order: 4).
+They are removed when their likelihood is below 0.4.
+
+Synchronizing...
+--> Camera valse and valse: 0 frames offset, correlation 1.0.
+Synchronized json files saved in /home/charles/coding/Pose2Sim/Demo_SinglePerson/pose-sync.
+
+Synchronization took 00h00m04s.
+
+
+---------------------------------------------------------------------
+Associating persons for Demo_SinglePerson, for all frames.
+On Sunday 01. December 2024, 20:42:55
+Project directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson
+---------------------------------------------------------------------
+
+
+---------------------------------------------------------------------
+Associating persons for Demo_SinglePerson, for all frames.
+On Sunday 01. December 2024, 20:43:32
+Project directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson
+---------------------------------------------------------------------
+
+
+---------------------------------------------------------------------
+Associating persons for Demo_SinglePerson, for all frames.
+On Sunday 01. December 2024, 20:45:47
+Project directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson
+---------------------------------------------------------------------
+
+
+Multi-person analysis selected.
+
+--> A person was reconstructed if the lines from cameras to their keypoints intersected within 0.1 m and if the calculated affinity stayed below 0.2 after excluding points with likelihood below 0.3.
+--> Beware that people were sorted across cameras, but not across frames. This will be done in the triangulation stage.
+
+Tracked json files are stored in /home/charles/coding/Pose2Sim/Demo_SinglePerson/pose-associated.
+
+Associating persons took 00h00m03s.
+
+
+---------------------------------------------------------------------
+Associating persons for Demo_SinglePerson, for all frames.
+On Sunday 01. December 2024, 20:47:37
+Project directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson
+---------------------------------------------------------------------
+
+
+Multi-person analysis selected.
+
+--> A person was reconstructed if the lines from cameras to their keypoints intersected within 0.1 m and if the calculated affinity stayed below 0.2 after excluding points with likelihood below 0.3.
+--> Beware that people were sorted across cameras, but not across frames. This will be done in the triangulation stage.
+
+Tracked json files are stored in /home/charles/coding/Pose2Sim/Demo_SinglePerson/pose-associated.
+
+Associating persons took 00h00m03s.
+
+
+---------------------------------------------------------------------
+Triangulation of 2D points for Demo_SinglePerson, for all frames.
+On Sunday 01. December 2024, 20:47:49
+Project directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson
+---------------------------------------------------------------------
+
+
+Mean reprojection error for Hip is 8.4 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for RHip is 8.3 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for RKnee is 8.4 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for RAnkle is 8.4 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0, 212 to 212 were interpolated.
+Mean reprojection error for RBigToe is 8.3 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0, 208 to 209 were interpolated.
+Mean reprojection error for RSmallToe is 8.3 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0, 209 to 210 were interpolated.
+Mean reprojection error for RHeel is 8.5 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0, 212 to 213 were interpolated.
+Mean reprojection error for LHip is 8.4 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for LKnee is 8.4 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for LAnkle is 8.4 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0, 192 to 194, 211 to 213, 215 to 218 were interpolated.
+Mean reprojection error for LBigToe is 8.4 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0, 242 to 251 were interpolated.
+Mean reprojection error for LSmallToe is 8.4 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0, 190 to 190, 192 to 192, 249 to 249 were interpolated.
+Mean reprojection error for LHeel is 8.6 px (~ 0.035 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0, 189 to 192, 212 to 213, 216 to 216, 219 to 219 were interpolated.
+Mean reprojection error for Neck is 7.8 px (~ 0.031 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for Head is 7.5 px (~ 0.03 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for Nose is 7.6 px (~ 0.031 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for RShoulder is 7.8 px (~ 0.031 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for RElbow is 7.9 px (~ 0.032 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for RWrist is 7.8 px (~ 0.031 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for LShoulder is 8.0 px (~ 0.032 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for LElbow is 8.3 px (~ 0.034 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+Mean reprojection error for LWrist is 8.2 px (~ 0.033 m), reached with 0.0 excluded cameras. 
+  Frames 0 to 0 were interpolated.
+
+--> Mean reprojection error for all points on all frames is 8.2 px, which roughly corresponds to 33.1 mm. 
+Cameras were excluded if likelihood was below 0.3 and if the reprojection error was above 15 px.
+Gaps were interpolated with linear method if smaller than 10 frames. Larger gaps were filled with the last valid value.
+In average, 0.0 cameras had to be excluded to reach these thresholds.
+Camera int_val_new_1_img was excluded 0% of the time, and Camera int_val_new_img: 0%.
+
+3D coordinates are stored at /home/charles/coding/Pose2Sim/Demo_SinglePerson/pose-3d/Demo_SinglePerson_P1_0-412.trc.
+
+
+
+All trc files have been converted to c3d.
+Limb swapping was handled.
+Lens distortions were taken into account.
+
+Triangulation took 00h00m05s.
+
+
+---------------------------------------------------------------------
+Filtering 3D coordinates for Demo_SinglePerson, for all frames.
+On Sunday 01. December 2024, 20:47:57
+Project directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson
+
+---------------------------------------------------------------------
+
+--> Filter type: Butterworth low-pass. Order 4, Cut-off frequency 6 Hz.
+Filtered 3D coordinates are stored at /home/charles/coding/Pose2Sim/Demo_SinglePerson/pose-3d/Demo_SinglePerson_P1_0-412_filt_butterworth.trc.
+
+All filtered trc files have been converted to c3d.
+
+
+
+---------------------------------------------------------------------
+Augmentation process for Demo_SinglePerson, for all frames.
+On Sunday 01. December 2024, 20:48:53
+Project directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson
+---------------------------------------------------------------------
+
+Using Stanford augmenter model: v0.3
+
+---------------------------------------------------------------------
+OpenSim scaling and inverse kinematics for Demo_SinglePerson, for all frames.
+On Sunday 01. December 2024, 20:50:27
+Project directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson
+---------------------------------------------------------------------
+
+No LSTM trc files found. Using non augmented trc files instead.
+Processing TRC file: /home/charles/coding/Pose2Sim/Demo_SinglePerson/pose-3d/Demo_SinglePerson_P1_0-412_filt_butterworth.trc
+Scaling...
+	Done. OpenSim logs saved to /home/charles/coding/Pose2Sim/Demo_SinglePerson/kinematics/opensim_logs.txt.
+	Scaled model saved to /home/charles/coding/Pose2Sim/Demo_SinglePerson/kinematics/Demo_SinglePerson_P1_0-412_filt_butterworth_scaled.osim
+Inverse Kinematics...
+
+---------------------------------------------------------------------
+OpenSim scaling and inverse kinematics for Demo_SinglePerson, for all frames.
+On Sunday 01. December 2024, 21:10:25
+Project directory: /home/charles/coding/Pose2Sim/Demo_SinglePerson
+---------------------------------------------------------------------
+
+No LSTM trc files found. Using non augmented trc files instead.
+Processing TRC file: /home/charles/coding/Pose2Sim/Demo_SinglePerson/pose-3d/Demo_SinglePerson_P1_0-412_filt_butterworth.trc
+Scaling...
+	Done. OpenSim logs saved to /home/charles/coding/Pose2Sim/Demo_SinglePerson/kinematics/opensim_logs.txt.
+	Scaled model saved to /home/charles/coding/Pose2Sim/Demo_SinglePerson/kinematics/Demo_SinglePerson_P1_0-412_filt_butterworth_scaled.osim
+Inverse Kinematics...
+	Done. OpenSim logs saved to /home/charles/coding/Pose2Sim/Demo_SinglePerson/kinematics/opensim_logs.txt.
+	Joint angle data saved to /home/charles/coding/Pose2Sim/Demo_SinglePerson/kinematics/Demo_SinglePerson_P1_0-412_filt_butterworth.mot
+
+OpenSim scaling and inverse kinematics took 00h03m40s.
+
