@@ -1,4 +1,3 @@
-PathFileType  4	(X/Y/Z) /home/charles/coding/Pose2Sim/Demo_SinglePerson/pose-3d
 DataRate	CameraRate	NumFrames	NumMarkers	Units	OrigDataRate	OrigDataStartFrame	OrigNumFrames
 29.0	29.0	412	22	m	29.0	0	412
 Frame#	Time	Hip			RHip			RKnee			RAnkle			RBigToe			RSmallToe			RHeel			LHip			LKnee			LAnkle			LBigToe			LSmallToe			LHeel			Neck			Head			Nose			RShoulder			RElbow			RWrist			LShoulder			LElbow			LWrist			

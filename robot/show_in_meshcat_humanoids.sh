@@ -4,6 +4,7 @@
 # Date: 2021-07-01
 # This script is used to show the URDF of the humanoids in MeshCat.
 # Execution: bash show_in_meshcat_humanoids.sh
+# The option --joints_only or -j will show only the joints of the robot.
 
 
 robots_to_test=(
@@ -14,7 +15,16 @@ robots_to_test=(
     "valkyrie_description"
 )
 
-for robot in "${robots_to_test[@]}"; do
+# Show only the joints of the robot
+if [[ $1 == "--joints_only" ]] || [[ $1 == "-j" ]]; then
+    for robot in "${robots_to_test[@]}"; do
+        echo "Showing $robot in MeshCat with only the joints"
+        python show_joints_robots.py "$robot"
+    done
+
+else 
+    for robot in "${robots_to_test[@]}"; do
     echo "Showing $robot in MeshCat"
     python show_in_robomeshcat.py "$robot"
 done
+fi

@@ -13,3 +13,4 @@ dependencies:
   - robomeshcat
   - pycollada
   - joblib
+  - pandas

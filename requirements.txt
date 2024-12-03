@@ -11,4 +11,5 @@ torchvision
 pinochio
 pin
 robotmeshcat
+pandas
 #mediapipe
