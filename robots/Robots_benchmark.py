@@ -3,9 +3,6 @@ import robot_descriptions
 from robot_descriptions.loaders.pinocchio import load_robot_description
 import numpy as np
 
-import show_in_meshcat
-
-# Show in meshcat the robot model
 
 robots_to_test = [
     "atlas_drc_description", "atlas_v4_description", "draco3_description",
@@ -23,7 +20,7 @@ def benchmark_feet_agility(robot):
     agility_scores = {}
 
 
-    '''
+    # Get the joint limits
     for joint in feet_joints:
         joint_id = robot.model.getJointId(joint)
         print( "Joint ID: ", joint_id)
@@ -33,10 +30,11 @@ def benchmark_feet_agility(robot):
             agility_scores[joint] = joint_limits
         else:
             agility_scores[joint] = 0.0
-        '''
+        
 
     return agility_scores
 
+agility_scores_dict = {}
 
 for robot_name in robots_to_test:
     # Load the robot model
@@ -49,7 +47,7 @@ for robot_name in robots_to_test:
 
     # Get the names of all the joints
     joint_names = robot.model.names
-    print(f"Joint names for {robot_name}: {joint_names}")
+    #print(f"Joint names for {robot_name}: {joint_names}")
     
     # Get the number of joints
     num_joints = len(joint_names)
@@ -58,7 +56,7 @@ for robot_name in robots_to_test:
     # Get the joint limits
     joint_limits = {}
     for joint in joint_names:
-        print("Joint: ", joint)
+        #print("Joint: ", joint)
         joint_id = robot.model.getJointId(joint)
         if joint_id != pin.JointModelFreeFlyer.id and 0 <= joint_id < len(robot.model.upperPositionLimit):
             lower_limit = robot.model.lowerPositionLimit[joint_id]
@@ -67,9 +65,14 @@ for robot_name in robots_to_test:
         else:
             joint_limits[joint] = (None, None)
     
-    #print(f"Joint limits for {robot_name}: {joint_limits}")
+    print(f"Joint limits for {robot_name}: {joint_limits}")
     agility_scores = benchmark_feet_agility(robot)
-    #print("Feet agility scores of ", robot_name, ": ", agility_scores)
+    print("Feet agility scores of ", robot_name, ": ", agility_scores)
+
+    agility_scores_dict[robot_name] = agility_scores
+
+print("Agility scores: ", agility_scores_dict)
+print("best robot: ", max(agility_scores_dict, key=lambda k: sum(agility_scores_dict[k].values())))
 
 
 
