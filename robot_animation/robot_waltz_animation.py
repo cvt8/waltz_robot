@@ -79,7 +79,30 @@ class RobotWaltzAnimation:
             "l_arm_wry": ["X22", "Y22", "Z22"],  # LWrist
         }
 
-        self.feet_markers = {"l_leg_mtp": ["X11", "Y11", "Z11"], "r_leg_mtp": ["X5", "Y5", "Z5"]}
+        # Read rotation data
+        file_path_rot = 'rotation_joints.mot'
+        data_rot = pd.read_csv(file_path_rot, delimiter='\t', skiprows=10)
+
+
+        # Identify joints with their 3D positions
+        rotation_joint_names = [
+            'pelvis_tilt', 'pelvis_list', 'pelvis_rotation', 'pelvis_tx', 'pelvis_ty', 'pelvis_tz',
+            'hip_flexion_r', 'hip_adduction_r', 'hip_rotation_r', 'knee_angle_r', 'knee_angle_r_beta',
+            'ankle_angle_r', 'subtalar_angle_r', 'mtp_angle_r', 'hip_flexion_l', 'hip_adduction_l',
+            'hip_rotation_l', 'knee_angle_l', 'knee_angle_l_beta', 'ankle_angle_l', 'subtalar_angle_l',
+            'mtp_angle_l', 'L5_S1_Flex_Ext', 'L5_S1_Lat_Bending', 'L5_S1_axial_rotation', 'L4_L5_Flex_Ext',
+            'L4_L5_Lat_Bending', 'L4_L5_axial_rotation', 'L3_L4_Flex_Ext', 'L3_L4_Lat_Bending',
+            'L3_L4_axial_rotation', 'L2_L3_Flex_Ext', 'L2_L3_Lat_Bending', 'L2_L3_axial_rotation',
+            'L1_L2_Flex_Ext', 'L1_L2_Lat_Bending', 'L1_L2_axial_rotation', 'L1_T12_Flex_Ext',
+            'L1_T12_Lat_Bending', 'L1_T12_axial_rotation', 'Abs_r3', 'Abs_r2', 'Abs_r1', 'Abs_t1', 'Abs_t2',
+            'neck_flexion', 'neck_bending', 'neck_rotation', 'arm_flex_r', 'arm_add_r', 'arm_rot_r',
+            'elbow_flex_r', 'pro_sup_r', 'wrist_flex_r', 'wrist_dev_r', 'arm_flex_l', 'arm_add_l',
+            'arm_rot_l', 'elbow_flex_l', 'pro_sup_l', 'wrist_flex_l', 'wrist_dev_l'
+        ]
+
+        self.feet_markers = {"l_foot": ["X11", "Y11", "Z11"], "r_foot": ["X5", "Y5", "Z5"]}
+        self.feet_rotations = {"l_foot": ["ankle_angle_l", "subtalar_angle_l", "mtp_angle_l"],
+                               "r_foot": ["ankle_angle_r", "subtalar_angle_r", "mtp_angle_r"]}
 
         self.validate_joint_mapping()
 
