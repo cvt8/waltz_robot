@@ -1,5 +1,6 @@
 import numpy as np
 import pink
+import pinocchio as pin
 from pink.tasks import FrameTask, PostureTask
 from pink import solve_ik
 from robot_descriptions.loaders.pinocchio import load_robot_description
@@ -149,16 +150,17 @@ class RobotWaltzAnimation:
 
         for idx in range(len(self.time_col)):
             for foot, markers in self.feet_markers.items():
-                position = self.data_pos.loc[idx, markers].values
-                self.tasks[foot].set_target(pink.SE3(position, np.eye(3)))
+                position = self.data_pos.loc[idx, markers]
+                position_quaternion = pin.Quaternion(0, 0, 0, 0)
+                self.tasks[foot].set_target(pin.SE3(position_quaternion, np.array(position)))
 
             velocity = solve_ik(self.configuration, self.tasks.values(), dt, solver="quadprog")
             self.configuration.integrate_inplace(velocity, dt)
 
             print(f"Frame {idx}, Configuration: {self.configuration.q}")
             self.viz.display(self.configuration.q)
-            frame = self.viz.get_frame()
-            animation_frames.append(frame)
+            frame = self.viz.captureImage()
+            animation_frames.append(frame[:,:,:3])
             time.sleep(dt)
 
         return animation_frames
