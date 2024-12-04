@@ -11,8 +11,6 @@ dependencies:
   - pip
   - matplotlib
   - robot_descriptions
-  - robomeshcat
-  - meshcat
   - pycollada
   - joblib
   - pandas
@@ -20,4 +18,4 @@ dependencies:
   - ffmpeg
   - time
   - pydub
-  - opencv-python
+  - opencv

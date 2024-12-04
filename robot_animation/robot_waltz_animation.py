@@ -1,15 +1,12 @@
 import numpy as np
 import pink
 import pinocchio as pin
+from pink.visualization import start_meshcat_visualizer
 from pink.tasks import FrameTask, PostureTask
 from pink import solve_ik
 from robot_descriptions.loaders.pinocchio import load_robot_description
 import pandas as pd
 import time
-import meshcat
-import meshcat.geometry as g
-from pinocchio.visualize import MeshcatVisualizer
-from pink.visualization import start_meshcat_visualizer
 from pydub import AudioSegment
 import cv2
 import subprocess
@@ -149,11 +146,20 @@ class RobotWaltzAnimation:
         animation_frames = []
 
         for idx in range(len(self.time_col)):
+            # Update foot positions
             for foot, markers in self.feet_markers.items():
                 position = self.data_pos.loc[idx, markers]
                 position_quaternion = pin.SE3.Identity().rotation
                 self.tasks[foot].set_target(pin.SE3(position_quaternion, np.array(position)))
 
+            # Calculate the average position of the feet to update the pelvis position
+            left_foot_position = self.data_pos.loc[idx, self.feet_markers["l_foot"]].values
+            right_foot_position = self.data_pos.loc[idx, self.feet_markers["r_foot"]].values
+            pelvis_position = (left_foot_position + right_foot_position) / 2
+            pelvis_quaternion = pin.SE3.Identity().rotation
+            self.tasks["pelvis"].set_target(pin.SE3(pelvis_quaternion, pelvis_position))
+
+            # Solve inverse kinematics and update configuration
             velocity = solve_ik(self.configuration, self.tasks.values(), dt, solver="quadprog")
             self.configuration.integrate_inplace(velocity, dt)
 
@@ -218,8 +224,8 @@ def create_video(animation_frames, audio_file, background_image, output_file, cr
 
     # Create a temporary credits image
     credits_image = 'credits.png'
-    credits = np.zeros((50, width, 3), dtype=np.uint8)
-    cv2.putText(credits, credits_text, (10, 35), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+    credits = np.zeros((height, width, 3), dtype=np.uint8)
+    cv2.putText(credits, credits_text, (10, height // 2), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2, cv2.LINE_AA)
     cv2.imwrite(credits_image, credits)
 
     # Combine video, audio, and credits using ffmpeg
@@ -227,8 +233,8 @@ def create_video(animation_frames, audio_file, background_image, output_file, cr
         'ffmpeg',
         '-i', 'temp_video.mp4',
         '-i', audio_file,
-        '-loop', '1', '-i', credits_image,
-        '-filter_complex', '[2:v]fade=in:0:30,fade=out:st=4:d=1[credits];[0:v][credits]overlay=W-w:H-h:enable=\'between(t,0,5)\'',
+        '-loop', '1', '-t', '4', '-i', credits_image,
+        '-filter_complex', '[0:v][2:v]concat=n=2:v=1:a=0',
         '-c:v', 'libx264',
         '-c:a', 'aac',
         '-shortest',
@@ -251,4 +257,4 @@ robot_animation = RobotWaltzAnimation("atlas_v4_description", 'position_joints.t
 animation_frames = robot_animation.animate(bpm=187)
 
 # Example usage
-create_video(animation_frames, 'Chostakovitch_Kitaenko_w2.mp3', 'ballroom.jpg', 'robot_waltz.mp4', 'A video realized by Constantin Vaillant6tenzer and Charles Monte')
+create_video(animation_frames, 'Chostakovitch_Kitaenko_w2.mp3', 'ballroom.jpg', 'robot_waltz.mp4', 'A video realized by Constantin Vaillant-Tenzer and Charles Monte \n Music: Chostakovitch, waltz #2 - directed by Kitaenko')
