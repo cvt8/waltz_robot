@@ -151,7 +151,7 @@ class RobotWaltzAnimation:
         for idx in range(len(self.time_col)):
             for foot, markers in self.feet_markers.items():
                 position = self.data_pos.loc[idx, markers]
-                position_quaternion = pin.Quaternion(0, 0, 0, 0)
+                position_quaternion = pin.SE3.Identity().rotation
                 self.tasks[foot].set_target(pin.SE3(position_quaternion, np.array(position)))
 
             velocity = solve_ik(self.configuration, self.tasks.values(), dt, solver="quadprog")
