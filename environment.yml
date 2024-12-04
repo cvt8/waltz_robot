@@ -8,7 +8,6 @@ dependencies:
   - numpy
   - pytorch
   - torchvision
-  - pip
   - matplotlib
   - robot_descriptions
   - pycollada
@@ -19,3 +18,5 @@ dependencies:
   - time
   - pydub
   - opencv
+  - meshcat-python
+  - pip

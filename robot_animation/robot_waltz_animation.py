@@ -2,7 +2,7 @@ import numpy as np
 import pink
 import pinocchio as pin
 from pink.visualization import start_meshcat_visualizer
-from pink.tasks import FrameTask, PostureTask
+from pink.tasks import FrameTask, PostureTask, ComTask
 from pink import solve_ik
 from robot_descriptions.loaders.pinocchio import load_robot_description
 import pandas as pd
@@ -22,13 +22,23 @@ class RobotWaltzAnimation:
         self.robot = load_robot_description(robot_description)
         self.configuration = pink.Configuration(self.robot.model, self.robot.data, self.robot.q0)
 
+        # Get the names of the robot frames
+        #robot_frame_names = [frame for frame in self.robot.model.frames]    
+        #robot_frame_names = [frame for frame in robot_frame_names if frame != "universe"]
+        robot_frame_names = ['root_joint', 'pelvis', 'back_bkz', 'ltorso', 'back_bky', 'mtorso', 'back_bkx', 'utorso', 'l_arm_shz', 'l_clav', 'l_arm_shx', 'l_scap', 'l_arm_ely', 'l_uarm', 'l_arm_elx', 'l_larm', 'l_arm_wry', 'l_ufarm', 'l_arm_wrx', 'l_lfarm', 'l_arm_wry2', 'l_hand', 'neck_ry', 'head', 'r_arm_shz', 'r_clav', 'r_arm_shx', 'r_scap', 'r_arm_ely', 'r_uarm', 'r_arm_elx', 'r_larm', 'r_arm_wry', 'r_ufarm', 'r_arm_wrx', 'r_lfarm', 'r_arm_wry2', 'r_hand', 'l_leg_hpz', 'l_uglut', 'l_leg_hpx', 'l_lglut', 'l_leg_hpy', 'l_uleg', 'l_leg_kny', 'l_lleg', 'l_leg_aky', 'l_talus', 'l_leg_akx', 'l_foot', 'r_leg_hpz', 'r_uglut', 'r_leg_hpx', 'r_lglut', 'r_leg_hpy', 'r_uleg', 'r_leg_kny', 'r_lleg', 'r_leg_aky', 'r_talus', 'r_leg_akx', 'r_foot']
+
         # Define tasks for Pink
-        self.tasks = {
-            "pelvis": FrameTask("pelvis", position_cost=1.0, orientation_cost=1.0),
-            "l_foot": FrameTask("l_foot", position_cost=1.0, orientation_cost=1.0),
-            "r_foot": FrameTask("r_foot", position_cost=1.0, orientation_cost=1.0),
-            "posture": PostureTask(cost=1e-3),
-        }
+        self.tasks = {frame: FrameTask(frame, position_cost=1e-3, orientation_cost=1e-3) for frame in robot_frame_names}
+        self.tasks["posture"] = PostureTask(cost=1e-3)
+        self.tasks["l_foot"].position_cost = 1.0
+        self.tasks["r_foot"].position_cost = 1.0
+        self.tasks["l_foot"].orientation_cost = 1.0
+        self.tasks["r_foot"].orientation_cost = 1.0
+        self.tasks["head"].position_cost = 1.0
+        self.tasks["head"].orientation_cost = 1.0
+
+        # Add CoM task
+        #self.tasks["com"] = ComTask(self.robot)
 
         # Set posture task to the robot's default configuration
         self.tasks["posture"].set_target(self.configuration.q)
@@ -51,7 +61,26 @@ class RobotWaltzAnimation:
             "Z19", "X20", "Y20", "Z20", "X21", "Y21", "Z21", "X22", "Y22", "Z22"
         ]
 
-        # Mapping from joints to markers (you can manually specify these mappings based on your robot)
+         # Read rotation data
+        self.data_rot = pd.read_csv('rotation_joints.mot', delimiter='\t', skiprows=10)
+
+        # Identify joints with their 3D positions
+        rotation_joint_names = [
+            'pelvis_tilt', 'pelvis_list', 'pelvis_rotation', 'pelvis_tx', 'pelvis_ty', 'pelvis_tz',
+            'hip_flexion_r', 'hip_adduction_r', 'hip_rotation_r', 'knee_angle_r', 'knee_angle_r_beta',
+            'ankle_angle_r', 'subtalar_angle_r', 'mtp_angle_r', 'hip_flexion_l', 'hip_adduction_l',
+            'hip_rotation_l', 'knee_angle_l', 'knee_angle_l_beta', 'ankle_angle_l', 'subtalar_angle_l',
+            'mtp_angle_l', 'L5_S1_Flex_Ext', 'L5_S1_Lat_Bending', 'L5_S1_axial_rotation', 'L4_L5_Flex_Ext',
+            'L4_L5_Lat_Bending', 'L4_L5_axial_rotation', 'L3_L4_Flex_Ext', 'L3_L4_Lat_Bending',
+            'L3_L4_axial_rotation', 'L2_L3_Flex_Ext', 'L2_L3_Lat_Bending', 'L2_L3_axial_rotation',
+            'L1_L2_Flex_Ext', 'L1_L2_Lat_Bending', 'L1_L2_axial_rotation', 'L1_T12_Flex_Ext',
+            'L1_T12_Lat_Bending', 'L1_T12_axial_rotation', 'Abs_r3', 'Abs_r2', 'Abs_r1', 'Abs_t1', 'Abs_t2',
+            'neck_flexion', 'neck_bending', 'neck_rotation', 'arm_flex_r', 'arm_add_r', 'arm_rot_r',
+            'elbow_flex_r', 'pro_sup_r', 'wrist_flex_r', 'wrist_dev_r', 'arm_flex_l', 'arm_add_l',
+            'arm_rot_l', 'elbow_flex_l', 'pro_sup_l', 'wrist_flex_l', 'wrist_dev_l'
+        ]
+
+        # Mapping from joints to markers
         self.joint_marker_map = {
             "back_bkz": ["X1", "Y1", "Z1"],  # Hip
             "r_leg_hpz": ["X2", "Y2", "Z2"],  # RHip
@@ -77,30 +106,36 @@ class RobotWaltzAnimation:
             "l_arm_wry": ["X22", "Y22", "Z22"],  # LWrist
         }
 
-        # Read rotation data
-        file_path_rot = 'rotation_joints.mot'
-        data_rot = pd.read_csv(file_path_rot, delimiter='\t', skiprows=10)
+        # Mapping from joints to rotations
+        self.joint_rotation_map = {
+            "pelvis": ["pelvis_tilt", "pelvis_list", "pelvis_rotation"],
+            "r_hip": ["hip_flexion_r", "hip_adduction_r", "hip_rotation_r"],
+            "r_knee": ["knee_angle_r", "knee_angle_r_beta"],
+            "r_ankle": ["ankle_angle_r", "subtalar_angle_r"],
+            "l_hip": ["hip_flexion_l", "hip_adduction_l", "hip_rotation_l"],
+            "l_knee": ["knee_angle_l", "knee_angle_l_beta"],
+            "l_ankle": ["ankle_angle_l", "subtalar_angle_l"],
+            "spine": ["L5_S1_Flex_Ext", "L5_S1_Lat_Bending", "L5_S1_axial_rotation"],
+            "neck": ["neck_flexion", "neck_bending", "neck_rotation"],
+            "r_shoulder": ["arm_flex_r", "arm_add_r", "arm_rot_r"],
+            "r_elbow": ["elbow_flex_r", "pro_sup_r"],
+            "r_wrist": ["wrist_flex_r", "wrist_dev_r"],
+            "l_shoulder": ["arm_flex_l", "arm_add_l", "arm_rot_l"],
+            "l_elbow": ["elbow_flex_l", "pro_sup_l"],
+            "l_wrist": ["wrist_flex_l", "wrist_dev_l"],
+        }
 
-
-        # Identify joints with their 3D positions
-        rotation_joint_names = [
-            'pelvis_tilt', 'pelvis_list', 'pelvis_rotation', 'pelvis_tx', 'pelvis_ty', 'pelvis_tz',
-            'hip_flexion_r', 'hip_adduction_r', 'hip_rotation_r', 'knee_angle_r', 'knee_angle_r_beta',
-            'ankle_angle_r', 'subtalar_angle_r', 'mtp_angle_r', 'hip_flexion_l', 'hip_adduction_l',
-            'hip_rotation_l', 'knee_angle_l', 'knee_angle_l_beta', 'ankle_angle_l', 'subtalar_angle_l',
-            'mtp_angle_l', 'L5_S1_Flex_Ext', 'L5_S1_Lat_Bending', 'L5_S1_axial_rotation', 'L4_L5_Flex_Ext',
-            'L4_L5_Lat_Bending', 'L4_L5_axial_rotation', 'L3_L4_Flex_Ext', 'L3_L4_Lat_Bending',
-            'L3_L4_axial_rotation', 'L2_L3_Flex_Ext', 'L2_L3_Lat_Bending', 'L2_L3_axial_rotation',
-            'L1_L2_Flex_Ext', 'L1_L2_Lat_Bending', 'L1_L2_axial_rotation', 'L1_T12_Flex_Ext',
-            'L1_T12_Lat_Bending', 'L1_T12_axial_rotation', 'Abs_r3', 'Abs_r2', 'Abs_r1', 'Abs_t1', 'Abs_t2',
-            'neck_flexion', 'neck_bending', 'neck_rotation', 'arm_flex_r', 'arm_add_r', 'arm_rot_r',
-            'elbow_flex_r', 'pro_sup_r', 'wrist_flex_r', 'wrist_dev_r', 'arm_flex_l', 'arm_add_l',
-            'arm_rot_l', 'elbow_flex_l', 'pro_sup_l', 'wrist_flex_l', 'wrist_dev_l'
-        ]
-
+        # Mapping from feet to markers
         self.feet_markers = {"l_foot": ["X11", "Y11", "Z11"], "r_foot": ["X5", "Y5", "Z5"]}
+        self.head_markers = {"head": ["X15", "Y15", "Z15"]}
+        self.head_rotation = {"head": ["neck_flexion", "neck_bending", "neck_rotation"]}
         self.feet_rotations = {"l_foot": ["ankle_angle_l", "subtalar_angle_l", "mtp_angle_l"],
                                "r_foot": ["ankle_angle_r", "subtalar_angle_r", "mtp_angle_r"]}
+        
+        # Mapping other joints to markers
+        #self.other_joints = set(self.joint_marker_map.keys()) - set(self.feet_markers.keys())
+        #self.other_joints = list(self.other_joints)
+        
 
         self.validate_joint_mapping()
 
@@ -123,6 +158,14 @@ class RobotWaltzAnimation:
                     print(f"Error: Marker {marker} for joint {joint} not found in the dataset.")
                 else:
                     print(f"Mapping for {joint}: {marker} found.")
+        for joint, rotations in self.joint_rotation_map.items():
+            if len(rotations) != 3:
+                print(f"Warning: {joint} does not have exactly 3 rotations.")
+            for rotation in rotations:
+                if rotation not in self.data_rot.columns:
+                    print(f"Error: Rotation {rotation} for joint {joint} not found in the dataset.")
+                else:
+                    print(f"Mapping for {joint}: {rotation} found.")
 
     def extract_initial_positions(self, time_sec):
         time_idx = np.argmin(np.abs(pd.to_numeric(self.data_pos['Time'], errors='coerce') - time_sec))
@@ -139,6 +182,22 @@ class RobotWaltzAnimation:
             print(f"Default position for unmapped joint {joint}: {default_position}")
 
         return initial_positions
+    
+    def extract_initial_rotations(self, time_sec):
+        time_idx = np.argmin(np.abs(pd.to_numeric(self.data_pos['Time'], errors='coerce') - time_sec))
+        initial_rotations = {}
+        for joint, rotations in self.joint_rotation_map.items():
+            positions = self.data_rot.loc[time_idx, rotations].values
+            initial_rotations[joint] = positions
+            print(f"Initial rotation for {joint}: {positions}")
+
+        unmapped_joints = set(self.robot_joints) - set(self.joint_rotation_map.keys())
+        default_rotation = np.zeros(3)
+        for joint in unmapped_joints:
+            initial_rotations[joint] = default_rotation
+            print(f"Default rotation for unmapped joint {joint}: {default_rotation}")
+
+        return initial_rotations
 
     def animate(self, bpm=120.):
         FACTOR_BPM = 13
@@ -152,12 +211,20 @@ class RobotWaltzAnimation:
                 position_quaternion = pin.SE3.Identity().rotation
                 self.tasks[foot].set_target(pin.SE3(position_quaternion, np.array(position)))
 
-            # Calculate the average position of the feet to update the pelvis position
-            left_foot_position = self.data_pos.loc[idx, self.feet_markers["l_foot"]].values
-            right_foot_position = self.data_pos.loc[idx, self.feet_markers["r_foot"]].values
-            pelvis_position = (left_foot_position + right_foot_position) / 2
-            pelvis_quaternion = pin.SE3.Identity().rotation
-            self.tasks["pelvis"].set_target(pin.SE3(pelvis_quaternion, pelvis_position))
+            # Update head position
+            for head, markers in self.head_markers.items():
+                position = self.data_pos.loc[idx, markers]
+                position_quaternion = pin.SE3.Identity().rotation
+                self.tasks[head].set_target(pin.SE3(position_quaternion, np.array(position)))
+            
+            '''
+            # Update the positions and orientations of the rest of the body
+            for joint, markers in self.joint_marker_map.items():
+                if joint not in self.feet_markers and joint in self.joint_rotation_map:
+                    position = self.data_pos.loc[idx, markers].values
+                    rotation = self.data_rot.loc[idx, self.joint_rotation_map[joint]].values
+                    rotation_matrix = pin.rpy.rpyToMatrix(rotation)
+                    self.tasks[joint].set_target(pin.SE3(rotation_matrix, np.array(position)))'''
 
             # Solve inverse kinematics and update configuration
             velocity = solve_ik(self.configuration, self.tasks.values(), dt, solver="quadprog")
