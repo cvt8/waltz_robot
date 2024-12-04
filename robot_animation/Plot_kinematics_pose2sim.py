@@ -113,7 +113,7 @@ def read_data_rot():
         ax.set_title(f'Time: {time_rot[t]:.2f}')
         if t == 0:
             ax.legend()  # Add legend only for the first frame
-        plt.pause(0.1)  # Pause to create an animation effect
+        plt.pause(0.0344828)  # Pause to create an animation effect
 
     plt.show()
 

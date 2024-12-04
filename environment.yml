@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - python=3.10
   - pinocchio
   - numpy
   - pytorch
@@ -11,8 +12,12 @@ dependencies:
   - matplotlib
   - robot_descriptions
   - robomeshcat
+  - meshcat
   - pycollada
   - joblib
   - pandas
   - pink
   - ffmpeg
+  - time
+  - pydub
+  - opencv-python
