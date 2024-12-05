@@ -25,6 +25,6 @@ if [[ $1 == "--joints_only" ]] || [[ $1 == "-j" ]]; then
 else 
     for robot in "${robots_to_test[@]}"; do
     echo "Showing $robot in MeshCat"
-    python show_in_robomeshcat.py "$robot"
+    python show_in_meshcat.py "$robot"
 done
 fi

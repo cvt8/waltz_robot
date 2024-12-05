@@ -25,26 +25,18 @@ class RobotWaltzAnimation:
         # Get the names of the robot frames
         #robot_frame_names = [frame for frame in self.robot.model.frames]    
         #robot_frame_names = [frame for frame in robot_frame_names if frame != "universe"]
-        robot_frame_names = ['root_joint', 'pelvis', 'back_bkz', 'ltorso', 'back_bky', 'mtorso', 'back_bkx', 'utorso', 'l_arm_shz', 'l_clav', 'l_arm_shx', 'l_scap', 'l_arm_ely', 'l_uarm', 'l_arm_elx', 'l_larm', 'l_arm_wry', 'l_ufarm', 'l_arm_wrx', 'l_lfarm', 'l_arm_wry2', 'l_hand', 'neck_ry', 'head', 'r_arm_shz', 'r_clav', 'r_arm_shx', 'r_scap', 'r_arm_ely', 'r_uarm', 'r_arm_elx', 'r_larm', 'r_arm_wry', 'r_ufarm', 'r_arm_wrx', 'r_lfarm', 'r_arm_wry2', 'r_hand', 'l_leg_hpz', 'l_uglut', 'l_leg_hpx', 'l_lglut', 'l_leg_hpy', 'l_uleg', 'l_leg_kny', 'l_lleg', 'l_leg_aky', 'l_talus', 'l_leg_akx', 'l_foot', 'r_leg_hpz', 'r_uglut', 'r_leg_hpx', 'r_lglut', 'r_leg_hpy', 'r_uleg', 'r_leg_kny', 'r_lleg', 'r_leg_aky', 'r_talus', 'r_leg_akx', 'r_foot']
-
+        robot_frame_names = ['universe', 'root_joint', 'torso_link', 'l_hip_ie', 'l_hip_ie_link', 'l_hip_aa', 'l_hip_aa_link', 'l_hip_fe', 'l_hip_fe_link', 'l_knee_fe_jp', 'l_knee_fe_lp', 'l_knee_adj', 'l_knee_adj_link', 'l_knee_fe_jd', 'l_knee_fe_ld', 'l_ankle_fe', 'l_ankle_fe_link', 'l_ankle_ie', 'l_ankle_ie_link', 'l_foot_contact_frame', 'l_foot_contact', 'l_shoulder_fe', 'l_shoulder_fe_link', 'l_shoulder_aa', 'l_shoulder_aa_link', 'l_shoulder_ie', 'l_shoulder_ie_link', 'l_elbow_fe', 'l_elbow_fe_link', 'l_wrist_ps', 'l_wrist_ps_link', 'l_wrist_pitch', 'l_wrist_pitch_link', 'l_wrist_mount', 'l_sake_gripper_link', 'l_hand_contact_frame', 'l_hand_contact', 'l_wrist_mount2', 'left_ezgripper_palm_link', 'left_ezgripper_knuckle_palm_L1_1', 'left_ezgripper_finger_L1_1', 'left_ezgripper_knuckle_L1_L2_1', 'left_ezgripper_finger_L2_1', 'left_ezgripper_knuckle_palm_L1_2', 'left_ezgripper_finger_L1_2', 'left_ezgripper_knuckle_L1_L2_2', 'left_ezgripper_finger_L2_2', 'neck_pitch', 'neck_pitch_link', 'camera_frame', 'camera', 'r_hip_ie', 'r_hip_ie_link', 'r_hip_aa', 'r_hip_aa_link', 'r_hip_fe', 'r_hip_fe_link', 'r_knee_fe_jp', 'r_knee_fe_lp', 'r_knee_adj', 'r_knee_adj_link', 'r_knee_fe_jd', 'r_knee_fe_ld', 'r_ankle_fe', 'r_ankle_fe_link', 'r_ankle_ie', 'r_ankle_ie_link', 'r_foot_contact_frame', 'r_foot_contact', 'r_shoulder_fe', 'r_shoulder_fe_link', 'r_shoulder_aa', 'r_shoulder_aa_link', 'r_shoulder_ie', 'r_shoulder_ie_link', 'r_elbow_fe', 'r_elbow_fe_link', 'r_wrist_ps', 'r_wrist_ps_link', 'r_wrist_pitch', 'r_wrist_pitch_link', 'r_wrist_mount', 'r_sake_gripper_link', 'r_hand_contact_frame', 'r_hand_contact', 'r_wrist_mount2', 'right_ezgripper_palm_link', 'right_ezgripper_knuckle_palm_L1_1', 'right_ezgripper_finger_L1_1', 'right_ezgripper_knuckle_L1_L2_1', 'right_ezgripper_finger_L2_1', 'right_ezgripper_knuckle_palm_L1_2', 'right_ezgripper_finger_L1_2', 'right_ezgripper_knuckle_L1_L2_2', 'right_ezgripper_finger_L2_2', 'torso_com', 'torso_com_link']
         # Define tasks for Pink
         self.tasks = {frame: FrameTask(frame, position_cost=1e-3, orientation_cost=1e-3) for frame in robot_frame_names}
         self.tasks["posture"] = PostureTask(cost=1e-3)
-        self.tasks["l_foot"].position_cost = 10.0
-        self.tasks["r_foot"].position_cost = 10.0
-        self.tasks["l_foot"].orientation_cost = 10.0
-        self.tasks["r_foot"].orientation_cost = 10.0
-        self.tasks["head"].position_cost = 10.0
-        self.tasks["head"].orientation_cost = 10.0
-        self.tasks["pelvis"].position_cost=5.0
-        self.tasks["pelvis"].orientation_cost=5.0
-        # Set the initial target for the root_joint
-        root_joint_pose = self.configuration.get_transform_frame_to_world("root_joint").copy()
-        self.tasks["root_joint"] = FrameTask("root_joint", position_cost=1e-3, orientation_cost=1e-3)
-        self.tasks["root_joint"].set_target(root_joint_pose)
-
-        
-
+        self.tasks["l_foot_contact"].position_cost = 10.0
+        self.tasks["r_foot_contact"].position_cost = 10.0
+        self.tasks["l_foot_contact"].orientation_cost = 10.0
+        self.tasks["r_foot_contact"].orientation_cost = 10.0
+        self.tasks["camera"].position_cost = 5.0
+        self.tasks["camera"].orientation_cost = 5.0
+        self.tasks["l_foot_contact"].position_damping = 1e-3
+    
 
         '''# Joint coupling task
         head_pelvis_coupling = JointCouplingTask(
@@ -169,14 +161,11 @@ class RobotWaltzAnimation:
         }
 
         # Mapping from feet to markers
-        self.feet_markers = {"l_foot": ["X11", "Y11", "Z11"], "r_foot": ["X5", "Y5", "Z5"]}
-        self.head_markers = {"head": ["X15", "Y15", "Z15"]}
-        self.pelvis_markers = {"pelvis": ["X1", "Y1", "Z1"]}
-        self.head_rotation = {"head": ["neck_flexion", "neck_bending", "neck_rotation"]}
-        self.feet_rotations = {"l_foot": ["ankle_angle_l", "subtalar_angle_l", "mtp_angle_l"],
-                               "r_foot": ["ankle_angle_r", "subtalar_angle_r", "mtp_angle_r"]}
-        self.pelvis_roations = {"pelvis": ["pelvis_tilt", "pelvis_list", "pelvis_rotation"]}
-        
+        self.feet_markers = {"l_foot_contact": ["X11", "Y11", "Z11"], "r_foot_contact": ["X5", "Y5", "Z5"]}
+        self.feet_rotations = {"l_foot_contact": ["ankle_angle_l", "subtalar_angle_l", "mtp_angle_l"],
+                               "r_foot_contact": ["ankle_angle_r", "subtalar_angle_r", "mtp_angle_r"]}
+        self.camera_markers = {"camera": ["X16", "Y16", "Z16"]}
+        self.camera_rotations = {"camera": ["neck_flexion", "neck_bending", "neck_rotation"]}
         # Mapping other joints to markers
         #self.other_joints = set(self.joint_marker_map.keys()) - set(self.feet_markers.keys())
         #self.other_joints = list(self.other_joints)
@@ -260,29 +249,12 @@ class RobotWaltzAnimation:
                 position_quaternion = pin.SE3.Identity().rotation
                 self.tasks[foot].set_target(pin.SE3(position_quaternion, np.array(position)))
 
-            # Update head position
-            for head, markers in self.head_markers.items():
+            # Update camera position
+            for camera, markers in self.camera_markers.items():
                 position = self.data_pos.loc[idx, markers]
                 position_quaternion = pin.SE3.Identity().rotation
-                self.tasks[head].set_target(pin.SE3(position_quaternion, np.array(position)))
-
-            # Update pelvis position
-            for pelvis, markers in self.pelvis_markers.items():
-                position = self.data_pos.loc[idx, markers]
-                position_quaternion = pin.SE3.Identity().rotation
-                self.tasks[pelvis].set_target(pin.SE3(position_quaternion, np.array(position)))
-
-            # Update pelvis position based on feet
-            l_foot_pos = self.data_pos.loc[idx, self.feet_markers["l_foot"]].values
-            r_foot_pos = self.data_pos.loc[idx, self.feet_markers["r_foot"]].values
-            pelvis_pos = (l_foot_pos + r_foot_pos) / 2  # Average position of feet
-            pelvis_rotation = pin.SE3.Identity().rotation  # Placeholder for rotation
-            self.tasks["pelvis"].set_target(pin.SE3(pelvis_rotation, pelvis_pos))
-
-            # Update root_joint position based on pelvis
-            root_joint_pos = pelvis_pos + np.array([0.0, 0.0, 0.1])  # Adjust the position as needed
-            self.tasks["root_joint"].set_target(pin.SE3(pelvis_rotation, root_joint_pos))
-
+                self.tasks[camera].set_target(pin.SE3(position_quaternion, np.array(position)))
+            
             # Solve inverse kinematics and update configuration
             velocity = solve_ik(self.configuration, self.tasks.values(), dt, solver="quadprog")
             self.configuration.integrate_inplace(velocity, dt)
@@ -379,7 +351,7 @@ bpm = get_bpm(file_path)
 print(f"BPM: {bpm}")
 
 # Example usage
-robot_animation = RobotWaltzAnimation("atlas_v4_description", 'position_joints.trc')
+robot_animation = RobotWaltzAnimation("draco3_description", 'position_joints.trc')
 animation_frames = robot_animation.animate(bpm=187)
 
 # Example usage

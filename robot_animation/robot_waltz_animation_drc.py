@@ -25,8 +25,7 @@ class RobotWaltzAnimation:
         # Get the names of the robot frames
         #robot_frame_names = [frame for frame in self.robot.model.frames]    
         #robot_frame_names = [frame for frame in robot_frame_names if frame != "universe"]
-        robot_frame_names = ['root_joint', 'pelvis', 'back_bkz', 'ltorso', 'back_bky', 'mtorso', 'back_bkx', 'utorso', 'l_arm_shz', 'l_clav', 'l_arm_shx', 'l_scap', 'l_arm_ely', 'l_uarm', 'l_arm_elx', 'l_larm', 'l_arm_wry', 'l_ufarm', 'l_arm_wrx', 'l_lfarm', 'l_arm_wry2', 'l_hand', 'neck_ry', 'head', 'r_arm_shz', 'r_clav', 'r_arm_shx', 'r_scap', 'r_arm_ely', 'r_uarm', 'r_arm_elx', 'r_larm', 'r_arm_wry', 'r_ufarm', 'r_arm_wrx', 'r_lfarm', 'r_arm_wry2', 'r_hand', 'l_leg_hpz', 'l_uglut', 'l_leg_hpx', 'l_lglut', 'l_leg_hpy', 'l_uleg', 'l_leg_kny', 'l_lleg', 'l_leg_aky', 'l_talus', 'l_leg_akx', 'l_foot', 'r_leg_hpz', 'r_uglut', 'r_leg_hpx', 'r_lglut', 'r_leg_hpy', 'r_uleg', 'r_leg_kny', 'r_lleg', 'r_leg_aky', 'r_talus', 'r_leg_akx', 'r_foot']
-
+        robot_frame_names = ['universe', 'root_joint', 'pelvis', 'back_bkz', 'ltorso', 'back_bky', 'mtorso', 'back_bkx', 'utorso', 'l_arm_shz', 'l_clav', 'l_arm_shx', 'l_scap', 'l_arm_ely', 'l_uarm', 'l_arm_elx', 'l_larm', 'l_arm_uwy', 'l_ufarm', 'l_arm_mwx', 'l_lfarm', 'l_arm_lwy', 'l_hand', 'l_hand_force_torque_joint', 'l_hand_force_torque', 'l_hand_camera_joint', 'l_hand_camera_link', 'l_hand_camera_optical_frame_joint', 'l_hand_camera_optical_frame', 'l_hand_face_joint', 'l_hand_face', 'l_hand_gripper_joint', 'l_hand_gripper', 'left_palm_joint', 'left_palm', 'l_situational_awareness_camera_joint', 'l_situational_awareness_camera_link', 'l_situational_awareness_camera_optical_frame_joint', 'l_situational_awareness_camera_optical_frame', 'neck_ay', 'head', 'center_bottom_led_frame_joint', 'center_bottom_led_frame', 'center_top_led_frame_joint', 'center_top_led_frame', 'left_camera_frame_joint', 'left_camera_frame', 'left_camera_optical_frame_joint', 'left_camera_optical_frame', 'left_led_frame_joint', 'left_led_frame', 'pre_spindle_joint', 'pre_spindle', 'pre_spindle_cal_x_joint', 'pre_spindle_cal_x', 'pre_spindle_cal_y_joint', 'pre_spindle_cal_y', 'pre_spindle_cal_z_joint', 'pre_spindle_cal_z', 'pre_spindle_cal_roll_joint', 'pre_spindle_cal_roll', 'pre_spindle_cal_pitch_joint', 'pre_spindle_cal_pitch', 'pre_spindle_cal_yaw_joint', 'pre_spindle_cal_yaw', 'hokuyo_joint', 'post_spindle', 'post_spindle_cal_x_joint', 'post_spindle_cal_x', 'post_spindle_cal_y_joint', 'post_spindle_cal_y', 'post_spindle_cal_z_joint', 'post_spindle_cal_z', 'post_spindle_cal_roll_joint', 'post_spindle_cal_roll', 'post_spindle_cal_pitch_joint', 'post_spindle_cal_pitch', 'post_spindle_cal_yaw_joint', 'hokuyo_link', 'head_hokuyo_fixed_joint', 'head_hokuyo_frame', 'right_camera_frame_joint', 'right_camera_frame', 'right_camera_optical_frame_joint', 'right_camera_optical_frame', 'right_led_frame_joint', 'right_led_frame', 'r_arm_shz', 'r_clav', 'r_arm_shx', 'r_scap', 'r_arm_ely', 'r_uarm', 'r_arm_elx', 'r_larm', 'r_arm_uwy', 'r_ufarm', 'r_arm_mwx', 'r_lfarm', 'r_arm_lwy', 'r_hand', 'r_hand_force_torque_joint', 'r_hand_force_torque', 'r_hand_camera_joint', 'r_hand_camera_link', 'r_hand_camera_optical_frame_joint', 'r_hand_camera_optical_frame', 'r_hand_face_joint', 'r_hand_face', 'r_hand_gripper_joint', 'r_hand_gripper', 'right_palm_joint', 'right_palm', 'r_situational_awareness_camera_joint', 'r_situational_awareness_camera_link', 'r_situational_awareness_camera_optical_frame_joint', 'r_situational_awareness_camera_optical_frame', 'l_leg_hpz', 'l_uglut', 'l_leg_hpx', 'l_lglut', 'l_leg_hpy', 'l_uleg', 'l_leg_kny', 'l_lleg', 'l_leg_aky', 'l_talus', 'l_leg_akx', 'l_foot', 'r_leg_hpz', 'r_uglut', 'r_leg_hpx', 'r_lglut', 'r_leg_hpy', 'r_uleg', 'r_leg_kny', 'r_lleg', 'r_leg_aky', 'r_talus', 'r_leg_akx', 'r_foot']
         # Define tasks for Pink
         self.tasks = {frame: FrameTask(frame, position_cost=1e-3, orientation_cost=1e-3) for frame in robot_frame_names}
         self.tasks["posture"] = PostureTask(cost=1e-3)
@@ -38,13 +37,6 @@ class RobotWaltzAnimation:
         self.tasks["head"].orientation_cost = 10.0
         self.tasks["pelvis"].position_cost=5.0
         self.tasks["pelvis"].orientation_cost=5.0
-        # Set the initial target for the root_joint
-        root_joint_pose = self.configuration.get_transform_frame_to_world("root_joint").copy()
-        self.tasks["root_joint"] = FrameTask("root_joint", position_cost=1e-3, orientation_cost=1e-3)
-        self.tasks["root_joint"].set_target(root_joint_pose)
-
-        
-
 
         '''# Joint coupling task
         head_pelvis_coupling = JointCouplingTask(
@@ -272,21 +264,26 @@ class RobotWaltzAnimation:
                 position_quaternion = pin.SE3.Identity().rotation
                 self.tasks[pelvis].set_target(pin.SE3(position_quaternion, np.array(position)))
 
-            # Update pelvis position based on feet
+           # Update pelvis position based on feet
             l_foot_pos = self.data_pos.loc[idx, self.feet_markers["l_foot"]].values
             r_foot_pos = self.data_pos.loc[idx, self.feet_markers["r_foot"]].values
             pelvis_pos = (l_foot_pos + r_foot_pos) / 2  # Average position of feet
             pelvis_rotation = pin.SE3.Identity().rotation  # Placeholder for rotation
             self.tasks["pelvis"].set_target(pin.SE3(pelvis_rotation, pelvis_pos))
-
-            # Update root_joint position based on pelvis
-            root_joint_pos = pelvis_pos + np.array([0.0, 0.0, 0.1])  # Adjust the position as needed
-            self.tasks["root_joint"].set_target(pin.SE3(pelvis_rotation, root_joint_pos))
+            
+            '''
+            # Update the positions and orientations of the rest of the body
+            for joint, markers in self.joint_marker_map.items():
+                if joint not in self.feet_markers and joint in self.joint_rotation_map:
+                    position = self.data_pos.loc[idx, markers].values
+                    rotation = self.data_rot.loc[idx, self.joint_rotation_map[joint]].values
+                    rotation_matrix = pin.rpy.rpyToMatrix(rotation)
+                    self.tasks[joint].set_target(pin.SE3(rotation_matrix, np.array(position)))
+            '''
 
             # Solve inverse kinematics and update configuration
             velocity = solve_ik(self.configuration, self.tasks.values(), dt, solver="quadprog")
             self.configuration.integrate_inplace(velocity, dt)
-            print("Tasks included in IK:", [task for task in self.tasks.keys()])
 
             print(f"Frame {idx_c}, Configuration: {self.configuration.q}")
             self.viz.display(self.configuration.q)
@@ -295,7 +292,6 @@ class RobotWaltzAnimation:
             time.sleep(dt)
 
         return animation_frames
-
 
 
 def get_bpm(file_path):
@@ -379,7 +375,7 @@ bpm = get_bpm(file_path)
 print(f"BPM: {bpm}")
 
 # Example usage
-robot_animation = RobotWaltzAnimation("atlas_v4_description", 'position_joints.trc')
+robot_animation = RobotWaltzAnimation("atlas_drc_description", 'position_joints.trc')
 animation_frames = robot_animation.animate(bpm=187)
 
 # Example usage
