@@ -11,7 +11,7 @@ import pandas as pd
 import pinocchio as pin
 import qpsolvers
 import time
-from loop_rate_limiters import RateLimiter
+from scipy.optimize import fmin_bfgs
 
 import meshcat_shapes
 import pink
@@ -31,8 +31,38 @@ feet_markers = {"l_foot": ["X11", "Y11", "Z11"], "r_foot": ["X5", "Y5", "Z5"]}
 pelvis_markers = {"pelvis": ["X1", "Y1", "Z1"]}
 data_pos = pd.read_csv('position_joints.trc', delimiter='\t', skiprows=3)
 init_frame = 275.0
-desired_pos_order = np.array([0, 1, 2])
-rotation_mat = np.array([[1., 0., 0.31538233], [0., 1., 0.75265143], [0., 0., 0.77584002]])
+head_pose = np.array(data_pos.loc[275:, ["X15", "Y15", "Z15"]])
+pelvis_pose = np.array(data_pos.loc[275:, ["X1", "Y1", "Z1"]])
+r_foot_pose = np.array(data_pos.loc[275:, ["X5", "Y5", "Z5"]])
+l_foot_pose = np.array(data_pos.loc[275:, ["X11", "Y11", "Z11"]])
+
+def get_rotation_matrix(rot_angles):
+    alpha = rot_angles[0]; beta = rot_angles[1]; gamma = rot_angles[2]
+    ca = np.cos(alpha); sa = np.sin(alpha)
+    cb = np.cos(beta); sb = np.sin(beta)
+    cg = np.cos(gamma); sg = np.sin(gamma)
+    rot_mat = np.array([[ca*cb, ca*sb*sg - sa*cg, ca*sb*cg + sa*sg],
+                        [sa*cb, sa*sb*sg + ca*cg, sa*sb*cg - ca*sg],
+                        [-sb, cb*sg, cb*cg]])
+    return rot_mat
+
+def cost(rot_angles):
+    # The cost is the absolute mean z-coordinate of the head
+    rot_mat = get_rotation_matrix(rot_angles)
+    rotated_head = head_pose@rot_mat
+    rotated_pelvis = pelvis_pose@rot_mat
+    rotated_r_foot = r_foot_pose@rot_mat
+    rotated_l_foot = l_foot_pose@rot_mat
+    cost = np.sum(rotated_head[:, 2] - 1.5)**2
+    # cost += np.sum(rotated_l_foot[:, 2])**2
+    cost += np.sum(rotated_r_foot[:, 2])**2
+    # cost = np.var(rotated_pelvis[:, 2])
+    # cost += np.mean(rotated_feet[:, 1] - rotated_head[:, 1])**2
+    return cost
+
+angles_0 = [0.0, 0.0, 0.0]
+angles_opt = fmin_bfgs(cost, angles_0)
+rotation_mat = get_rotation_matrix(angles_opt)
 # rotation_mat = np.eye(3)
 class WaltzRightFootPose:
 
