@@ -6,6 +6,7 @@
 
 """DRACO 3 humanoid standing on two feet and reaching with a hand."""
 
+import joblib
 import numpy as np
 import pandas as pd
 import pinocchio as pin
@@ -27,15 +28,17 @@ except ModuleNotFoundError as exc:
         "try `pip install robot_descriptions`"
     ) from exc
 
-feet_markers = {"l_foot": ["X11", "Y11", "Z11"], "r_foot": ["X5", "Y5", "Z5"]}
-pelvis_markers = {"pelvis": ["X1", "Y1", "Z1"]}
-head_markers = {"head": ["X15", "Y15", "Z15"]}
-data_pos = pd.read_csv('position_joints.trc', delimiter='\t', skiprows=3)
-init_frame = 275.0
-head_pose = np.array(data_pos.loc[275:, ["X15", "Y15", "Z15"]])
-pelvis_pose = np.array(data_pos.loc[275:, ["X1", "Y1", "Z1"]])
-r_foot_pose = np.array(data_pos.loc[275:, ["X5", "Y5", "Z5"]])
-l_foot_pose = np.array(data_pos.loc[275:, ["X11", "Y11", "Z11"]])
+results = joblib.load('valse_constantin.pt')
+positions = results['pred_xyz_29']
+
+feet_markers = {"l_foot": 28, "r_foot": 27}
+pelvis_markers = {"pelvis": 0}
+head_markers = {"head": 24}
+init_frame = 0.0
+head_pose = positions[int(init_frame):, head_markers["head"]]
+pelvis_pose = positions[int(init_frame):, pelvis_markers["pelvis"]]
+r_foot_pose = positions[int(init_frame):, feet_markers["r_foot"]]
+l_foot_pose = positions[int(init_frame):, feet_markers["l_foot"]]
 
 def get_transformation_matrix(values):
     rot_angles = values[:3]; translation = values[3:6]; scale = values[6:9]
@@ -94,7 +97,7 @@ class WaltzRightFootPose:
         """
         self.init_time = init_time
         base_config = configuration.get_transform_frame_to_world("r_foot")
-        base_pos_bigger = np.concatenate((np.array(data_pos.loc[init_time, feet_markers["r_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
+        base_pos_bigger = np.concatenate(((positions[int(init_time), feet_markers["r_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
         base_pos = (trans_mat@base_pos_bigger.T)[:3].T.reshape(-1)
         self.init = base_config.copy()
         self.init.translation = base_pos
@@ -106,7 +109,7 @@ class WaltzRightFootPose:
             t: Time in seconds.
         """
         T = self.init.copy()
-        position_bigger = np.concatenate((np.array(data_pos.loc[t, feet_markers["r_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
+        position_bigger = np.concatenate(((positions[int(t), feet_markers["r_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
         position = (trans_mat@position_bigger.T)[:3].T.reshape(-1)
         # R = T.rotation
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
@@ -125,7 +128,7 @@ class WaltzLeftFootPose:
         """
         self.init_time = init_time
         base_config = configuration.get_transform_frame_to_world("l_foot")
-        base_pos_bigger = np.concatenate((np.array(data_pos.loc[init_time, feet_markers["l_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
+        base_pos_bigger = np.concatenate(((positions[int(init_time), feet_markers["l_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
         base_pos = (trans_mat@base_pos_bigger.T)[:3].T.reshape(-1)
         self.init = base_config.copy()
         self.init.translation = base_pos
@@ -137,7 +140,7 @@ class WaltzLeftFootPose:
             t: Time in seconds.
         """
         T = self.init.copy()
-        position_bigger = np.concatenate((np.array(data_pos.loc[t, feet_markers["l_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
+        position_bigger = np.concatenate(((positions[int(t), feet_markers["l_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
         position = (trans_mat@position_bigger.T)[:3].T.reshape(-1)
         # R = T.rotation
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
@@ -156,7 +159,7 @@ class WaltzPelvisPose:
         """
         self.init_time = init_time
         base_config = configuration.get_transform_frame_to_world("pelvis")
-        base_pos_bigger = np.concatenate((np.array(data_pos.loc[init_time, pelvis_markers["pelvis"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
+        base_pos_bigger = np.concatenate(((positions[int(init_time), pelvis_markers["pelvis"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
         base_pos = (trans_mat@base_pos_bigger.T)[:3].T.reshape(-1)
         self.init = base_config.copy()
         self.init.translation = base_pos
@@ -168,7 +171,7 @@ class WaltzPelvisPose:
             t: Time in seconds.
         """
         T = self.init.copy()
-        position_bigger = np.concatenate((np.array(data_pos.loc[t, pelvis_markers["pelvis"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
+        position_bigger = np.concatenate(((positions[int(t), pelvis_markers["pelvis"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
         position = (trans_mat@position_bigger.T)[:3].T.reshape(-1)
         # R = T.rotation
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
@@ -187,7 +190,7 @@ class WaltzHeadPose:
         """
         self.init_time = init_time
         base_config = configuration.get_transform_frame_to_world("head")
-        base_pos_bigger = np.concatenate((np.array(data_pos.loc[init_time, head_markers["head"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
+        base_pos_bigger = np.concatenate(((positions[int(init_time), head_markers["head"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
         base_pos = (trans_mat@base_pos_bigger.T)[:3].T.reshape(-1)
         self.init = base_config.copy()
         self.init.translation = base_pos
@@ -199,7 +202,7 @@ class WaltzHeadPose:
             t: Time in seconds.
         """
         T = self.init.copy()
-        position_bigger = np.concatenate((np.array(data_pos.loc[t, head_markers["head"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
+        position_bigger = np.concatenate(((positions[int(t), head_markers["head"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
         position = (trans_mat@position_bigger.T)[:3].T.reshape(-1)
         # R = T.rotation
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
