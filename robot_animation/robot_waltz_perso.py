@@ -80,9 +80,9 @@ def cost(rot_angles):
     # cost += np.mean(rotated_feet[:, 1] - rotated_head[:, 1])**2
     return cost
 
-values_0 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
-values_opt = fmin_bfgs(cost, values_0)
-trans_mat = get_transformation_matrix(values_opt)
+values_0 = [-np.pi/4, -np.pi/4, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5]
+# values_opt = fmin_bfgs(cost, values_0)
+trans_mat = get_transformation_matrix(values_0)
 # rotation_mat = np.eye(3)
 class WaltzRightFootPose:
 

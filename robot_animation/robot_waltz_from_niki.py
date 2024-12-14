@@ -30,6 +30,7 @@ except ModuleNotFoundError as exc:
 
 results = joblib.load('valse_constantin.pt')
 positions = results['pred_xyz_29']
+adding_perfect_positions = False
 
 feet_markers = {"l_foot": 28, "r_foot": 27}
 pelvis_markers = {"pelvis": 0}
@@ -83,9 +84,48 @@ def cost(rot_angles):
     # cost += np.mean(rotated_feet[:, 1] - rotated_head[:, 1])**2
     return cost
 
-values_0 = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
-values_opt = fmin_bfgs(cost, values_0)
-trans_mat = get_transformation_matrix(values_opt)
+def get_x_y_positions_of_base_frame():
+    # Paramètres de la musique
+    BPM = 187
+    small_circle_duration = 6*60/BPM
+    print(f"Durée d'un petit cercle : {small_circle_duration:.2f} secondes")
+
+    # Paramètres pour le mouvement circulaire (petit cercle)
+    r_circle = 0.5 # rayon du petit cercle (en mètres)
+    omega_circle = -2 * np.pi / small_circle_duration  # vitesse angulaire (rad/s)
+
+    # Paramètres pour le mouvement elliptique (grand cercle de bal)
+    a_ellipse = 5  # demi-grand axe de l'ellipse (en mètres)
+    b_ellipse = 3  # demi-petit axe de l'ellipse (en mètres)
+    omega_ellipse = 2 * np.pi / 60  # vitesse pseudo-angulaire (rad/s)
+
+    # Temps
+    number_frames = positions.shape[0]
+    number_seconds = number_frames/30
+    t = np.linspace(0, number_seconds, number_frames)  # 60 secondes, 1000 points
+
+    # Mouvement circulaire
+    x_circle = r_circle * np.cos(omega_circle * t)
+    y_circle = r_circle * np.sin(omega_circle * t)
+
+    # Mouvement elliptique
+    x_ellipse = a_ellipse * np.cos(omega_ellipse * t)
+    y_ellipse = b_ellipse * np.sin(omega_ellipse * t)
+
+    # Composition des mouvements
+    x_total = x_circle + x_ellipse
+    y_total = y_circle + y_ellipse
+
+    return x_total, y_total
+
+values_0 = [0.0, 0.0, -np.pi/2, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0]
+# values_opt = fmin_bfgs(cost, values_0)
+trans_mat = get_transformation_matrix(values_0)
+if adding_perfect_positions:
+    x_positions, y_positions = get_x_y_positions_of_base_frame()
+else:
+    x_positions = np.zeros(positions.shape[0])
+    y_positions = np.zeros(positions.shape[0])
 # rotation_mat = np.eye(3)
 class WaltzRightFootPose:
 
@@ -98,7 +138,8 @@ class WaltzRightFootPose:
         self.init_time = init_time
         base_config = configuration.get_transform_frame_to_world("r_foot")
         base_pos_bigger = np.concatenate(((positions[int(init_time), feet_markers["r_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        base_pos = (trans_mat@base_pos_bigger.T)[:3].T.reshape(-1)
+        base_pos_0_referential = (trans_mat@base_pos_bigger.T)[:3].T
+        base_pos = (base_pos_0_referential + np.array([x_positions[int(init_time)], y_positions[int(init_time)], 0.0])).reshape(-1)
         self.init = base_config.copy()
         self.init.translation = base_pos
 
@@ -110,7 +151,8 @@ class WaltzRightFootPose:
         """
         T = self.init.copy()
         position_bigger = np.concatenate(((positions[int(t), feet_markers["r_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        position = (trans_mat@position_bigger.T)[:3].T.reshape(-1)
+        position_0_referential = (trans_mat@position_bigger.T)[:3].T
+        position = (position_0_referential + np.array([x_positions[int(t)], y_positions[int(t)], 0.0])).reshape(-1)
         # R = T.rotation
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, -np.pi, 0.0))
@@ -129,7 +171,8 @@ class WaltzLeftFootPose:
         self.init_time = init_time
         base_config = configuration.get_transform_frame_to_world("l_foot")
         base_pos_bigger = np.concatenate(((positions[int(init_time), feet_markers["l_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        base_pos = (trans_mat@base_pos_bigger.T)[:3].T.reshape(-1)
+        base_pos_0_referential = (trans_mat@base_pos_bigger.T)[:3].T
+        base_pos = (base_pos_0_referential + np.array([x_positions[int(init_time)], y_positions[int(init_time)], 0.0])).reshape(-1)
         self.init = base_config.copy()
         self.init.translation = base_pos
 
@@ -141,7 +184,8 @@ class WaltzLeftFootPose:
         """
         T = self.init.copy()
         position_bigger = np.concatenate(((positions[int(t), feet_markers["l_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        position = (trans_mat@position_bigger.T)[:3].T.reshape(-1)
+        position_0_referential = (trans_mat@position_bigger.T)[:3].T
+        position = (position_0_referential + np.array([x_positions[int(t)], y_positions[int(t)], 0.0])).reshape(-1)
         # R = T.rotation
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, -np.pi, 0.0))
@@ -160,7 +204,8 @@ class WaltzPelvisPose:
         self.init_time = init_time
         base_config = configuration.get_transform_frame_to_world("pelvis")
         base_pos_bigger = np.concatenate(((positions[int(init_time), pelvis_markers["pelvis"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        base_pos = (trans_mat@base_pos_bigger.T)[:3].T.reshape(-1)
+        base_pos_0_referential = (trans_mat@base_pos_bigger.T)[:3].T
+        base_pos = (base_pos_0_referential + np.array([x_positions[int(init_time)], y_positions[int(init_time)], 0.0])).reshape(-1)
         self.init = base_config.copy()
         self.init.translation = base_pos
 
@@ -172,7 +217,8 @@ class WaltzPelvisPose:
         """
         T = self.init.copy()
         position_bigger = np.concatenate(((positions[int(t), pelvis_markers["pelvis"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        position = (trans_mat@position_bigger.T)[:3].T.reshape(-1)
+        position_0_referential = (trans_mat@position_bigger.T)[:3].T
+        position = (position_0_referential + np.array([x_positions[int(t)], y_positions[int(t)], 0.0])).reshape(-1)
         # R = T.rotation
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, -np.pi, 0.0))
@@ -191,7 +237,8 @@ class WaltzHeadPose:
         self.init_time = init_time
         base_config = configuration.get_transform_frame_to_world("head")
         base_pos_bigger = np.concatenate(((positions[int(init_time), head_markers["head"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        base_pos = (trans_mat@base_pos_bigger.T)[:3].T.reshape(-1)
+        base_pos_0_referential = (trans_mat@base_pos_bigger.T)[:3].T
+        base_pos = (base_pos_0_referential + np.array([x_positions[int(init_time)], y_positions[int(init_time)], 0.0])).reshape(-1)
         self.init = base_config.copy()
         self.init.translation = base_pos
 
@@ -203,7 +250,8 @@ class WaltzHeadPose:
         """
         T = self.init.copy()
         position_bigger = np.concatenate(((positions[int(t), head_markers["head"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        position = (trans_mat@position_bigger.T)[:3].T.reshape(-1)
+        position_0_referential = (trans_mat@position_bigger.T)[:3].T
+        position = (position_0_referential + np.array([x_positions[int(t)], y_positions[int(t)], 0.0])).reshape(-1)
         # R = T.rotation
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
         # R = np.dot(R, pin.utils.rpyToMatrix(0.0, -np.pi, 0.0))
