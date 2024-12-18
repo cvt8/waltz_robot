@@ -31,18 +31,31 @@ except ModuleNotFoundError as exc:
 
 results = joblib.load('valse_constantin.pt')
 positions = results['pred_xyz_29']
-adding_perfect_positions = False
+perfect_positions = False
+init_frame = 0.
+max_frame = positions.shape[0] - 1
 
-feet_markers = {"l_foot": 28, "r_foot": 27}
-pelvis_markers = {"pelvis": 0}
-head_markers = {"head": 24}
-init_frame = 0.0
-head_pose = positions[int(init_frame):, head_markers["head"]]
-pelvis_pose = positions[int(init_frame):, pelvis_markers["pelvis"]]
-r_foot_pose = positions[int(init_frame):, feet_markers["r_foot"]]
-l_foot_pose = positions[int(init_frame):, feet_markers["l_foot"]]
+element_markers = {"pelvis": 0, "r_hand": 26, "l_hand": 25, "head": 24, "r_foot": 28, "l_foot": 27}
+element_costs = {"pelvis": [1., 0.], "r_hand": [.7, 0.], "l_hand": [.7, 0.], "head": [1., 0.], "r_foot": [1., 0.], "l_foot": [1., 0.]}
+
+# Getting the optimal transformation matrix to align the movement with the (x, y) plane
+head_pose = positions[int(init_frame):, element_markers["head"]]
+pelvis_pose = positions[int(init_frame):, element_markers["pelvis"]]
+r_foot_pose = positions[int(init_frame):, element_markers["r_foot"]]
+l_foot_pose = positions[int(init_frame):, element_markers["l_foot"]]
 
 def get_transformation_matrix(values):
+    """Get the transformation matrix from the parameters.
+    
+    Args:
+        values: List of 9 values [alpha, beta, gamma, x, y, z, sx, sy, sz]
+        alpha, beta, gamma: Rotation angles around x, y, z axes
+        x, y, z: Translation along x, y, z axes
+        sx, sy, sz: Scaling along x, y, z axes
+        
+    Returns:
+        trans_mat: Transformation matrix
+    """
     rot_angles = values[:3]; translation = values[3:6]; scale = values[6:9]
     alpha = rot_angles[0]; beta = rot_angles[1]; gamma = rot_angles[2]
     ca = np.cos(alpha); sa = np.sin(alpha)
@@ -59,34 +72,55 @@ def get_transformation_matrix(values):
     trans_mat[:3, 3] = translation
     return trans_mat
 
+def apply_transformation(transformation_matrix, positions):
+    """Apply transformation matrix to the positions.
+    
+    Args:
+        transformation_matrix: Transformation matrix, shape (4, 4)
+        positions: Positions to be transformed, shape (t, n, 3)
+    """
+    if positions.ndim == 2:
+        positions_bigger = np.concatenate((positions, np.ones((positions.shape[0], 1))), axis=1)
+        transformed_positions_bigger = (transformation_matrix@positions_bigger.T).T
+        transformed_positions = transformed_positions_bigger[:, :3]
+        
+    else:
+        transformed_positions = np.zeros_like(positions)
+        for t in range(positions.shape[0]):
+            actual_position = positions[t]
+            actual_position_bigger = np.concatenate((actual_position, np.ones((actual_position.shape[0], 1))), axis=1)
+            transformed_position_bigger = (transformation_matrix@actual_position_bigger.T).T
+            transformed_positions[t] = transformed_position_bigger[:, :3]
+            
+    return transformed_positions
+
 def cost(rot_angles):
     trans_mat = get_transformation_matrix(rot_angles)
-    head_pose_bigger = np.concatenate((head_pose, np.ones((head_pose.shape[0], 1))), axis=1)
-    pelvis_pose_bigger = np.concatenate((pelvis_pose, np.ones((pelvis_pose.shape[0], 1))), axis=1)
-    r_foot_pose_bigger = np.concatenate((r_foot_pose, np.ones((r_foot_pose.shape[0], 1))), axis=1)
-    l_foot_pose_bigger = np.concatenate((l_foot_pose, np.ones((l_foot_pose.shape[0], 1))), axis=1)
+    transformed_head = apply_transformation(transformation_matrix=trans_mat, positions=head_pose)
+    transformed_pelvis = apply_transformation(transformation_matrix=trans_mat, positions=pelvis_pose)
+    transformed_r_foot = apply_transformation(transformation_matrix=trans_mat, positions=r_foot_pose)
+    transformed_l_foot = apply_transformation(transformation_matrix=trans_mat, positions=l_foot_pose)
 
-    rotated_head_bigger = trans_mat@head_pose_bigger.T
-    rotated_pelvis_bigger = trans_mat@pelvis_pose_bigger.T
-    rotated_r_foot_bigger = trans_mat@r_foot_pose_bigger.T
-    rotated_l_foot_bigger = trans_mat@l_foot_pose_bigger.T
-
-    rotated_head = rotated_head_bigger[:3].T
-    rotated_pelvis = rotated_pelvis_bigger[:3].T
-    rotated_r_foot = rotated_r_foot_bigger[:3].T
-    rotated_l_foot = rotated_l_foot_bigger[:3].T
-
-    cost = np.sum(rotated_head[:, 2] - 1.5)**2
-    cost += np.sum(rotated_pelvis[:, 0] - rotated_head[:, 0])**2
-    cost += np.sum(rotated_pelvis[:, 1] - rotated_head[:, 1])**2
-    cost += np.abs(np.sum(rotated_l_foot[:, 2]))
-    cost += np.abs(np.sum(rotated_r_foot[:, 2]))
-    # cost = np.var(rotated_pelvis[:, 2])
-    # cost += np.mean(rotated_feet[:, 1] - rotated_head[:, 1])**2
+    cost = np.sum(transformed_head[:, 2] - 1.5)**2
+    cost += np.sum(transformed_pelvis[:, 0] - transformed_head[:, 0])**2
+    cost += np.sum(transformed_pelvis[:, 1] - transformed_head[:, 1])**2
+    cost += np.abs(np.sum(transformed_l_foot[:, 2]))
+    cost += np.abs(np.sum(transformed_r_foot[:, 2]))
+    # cost = np.var(transformed_pelvis[:, 2])
+    # cost += np.mean(transformed_feet[:, 1] - transformed_head[:, 1])**2
     return cost
 
-def get_positions_of_base_frame(camera_positions):
-    if adding_perfect_positions:
+def get_positions_of_base_frame(niki_positions, perfect_positions=False):
+    """Get the positions of the base frame in the world frame.
+    
+    Args:
+        niki_positions: Positions of the robot in the world frame, shape (n, 3)
+        perfect_positions: Boolean, whether the positions are from Niki or perfect positions
+        
+    Returns:
+        base_frame_positions: Positions of the base frame in the world frame, shape (n, 3)
+    """
+    if perfect_positions:
         # Paramètres de la musique
         BPM = 187
         small_circle_duration = 6*60/BPM
@@ -120,150 +154,57 @@ def get_positions_of_base_frame(camera_positions):
         z_total = np.zeros_like(x_total)
     
     else:
-        x_total = camera_positions[:, 0]
-        y_total = camera_positions[:, 1]
+        x_total = niki_positions[:, 0]
+        y_total = niki_positions[:, 1]
         x_total = savgol_filter(x_total, 100, 3)
         y_total = savgol_filter(y_total, 100, 3)
         z_total = np.zeros_like(x_total)
 
-    return x_total, y_total, z_total
+    base_frame_positions = np.concatenate((x_total.reshape(-1, 1), y_total.reshape(-1, 1), z_total.reshape(-1, 1)), axis=1)
+    return base_frame_positions
 
-values_0 = [0.0, 0.0, -np.pi/2, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0]
+values_0 = [np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.]
 # values_opt = fmin_bfgs(cost, values_0)
 trans_mat = get_transformation_matrix(values_0)
-camera_positions_orig = results['pred_cam_root']
-camera_positions_bigger = np.concatenate((camera_positions_orig, np.ones((camera_positions_orig.shape[0], 1))), axis=1)
-camera_positions_0_referential = (trans_mat@camera_positions_bigger.T)[:3].T
-x_positions, y_positions, z_positions = get_positions_of_base_frame(camera_positions=camera_positions_0_referential - camera_positions_0_referential[0])
-# rotation_mat = np.eye(3)
-class WaltzRightFootPose:
 
-    def __init__(self, init_time: float, configuration: pink.Configuration):
+# Apply transformation matrix to all the positions
+transformed_positions = apply_transformation(transformation_matrix=trans_mat, positions=positions)
+
+nike_base_positions_orig = results['pred_cam_root']
+transformed_nike_base_positions = apply_transformation(transformation_matrix=trans_mat, positions=nike_base_positions_orig)
+base_frame_positions = get_positions_of_base_frame(niki_positions=transformed_nike_base_positions - transformed_nike_base_positions[0])
+
+for t in range(transformed_positions.shape[0]):
+    transformed_positions[t] += base_frame_positions[t]
+
+element_positions = {element: transformed_positions[:, element_markers[element]] for element in element_markers}
+
+class RobotElementPose:
+    """ Base class used to define the position of a robot element at a given time."""
+    def __init__(self, init_time: float, configuration: pink.Configuration, element_name: str):
         """Initialize pose.
 
         Args:
-            init: Initial transform from the wrist frame to the world frame.
+            init: Initial transform from the element frame to the world frame.
         """
         self.init_time = init_time
-        base_config = configuration.get_transform_frame_to_world("r_foot")
-        base_pos_bigger = np.concatenate(((positions[int(init_time), feet_markers["r_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        base_pos_0_referential = (trans_mat@base_pos_bigger.T)[:3].T
-        base_pos = (base_pos_0_referential + np.array([x_positions[int(init_time)], y_positions[int(init_time)], z_positions[int(init_time)]])).reshape(-1)
-        self.init = base_config.copy()
-        self.init.translation = base_pos
+        self.element_name = element_name
+        init_config = configuration.get_transform_frame_to_world(element_name)
+        init_position = element_positions[element_name][int(init_time)]
+        self.init = init_config.copy()
+        self.init.translation = init_position
 
     def at(self, t):
-        """Get right feet pose at a given time.
+        """Get element pose at a given time.
 
         Args:
             t: Time in seconds.
         """
         T = self.init.copy()
-        position_bigger = np.concatenate(((positions[int(t), feet_markers["r_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        position_0_referential = (trans_mat@position_bigger.T)[:3].T
-        position = (position_0_referential + np.array([x_positions[int(t)], y_positions[int(t)], z_positions[int(t)]])).reshape(-1)
+        position = element_positions[self.element_name][int(t)]
         # R = T.rotation
-        # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
-        # R = np.dot(R, pin.utils.rpyToMatrix(0.0, -np.pi, 0.0))
-        # T.rotation = R
-        T.translation = position
-        return T
-    
-class WaltzLeftFootPose:
-
-    def __init__(self, init_time: float, configuration: pink.Configuration):
-        """Initialize pose.
-
-        Args:
-            init: Initial transform from the wrist frame to the world frame.
-        """
-        self.init_time = init_time
-        base_config = configuration.get_transform_frame_to_world("l_foot")
-        base_pos_bigger = np.concatenate(((positions[int(init_time), feet_markers["l_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        base_pos_0_referential = (trans_mat@base_pos_bigger.T)[:3].T
-        base_pos = (base_pos_0_referential + np.array([x_positions[int(init_time)], y_positions[int(init_time)], z_positions[int(init_time)]])).reshape(-1)
-        self.init = base_config.copy()
-        self.init.translation = base_pos
-
-    def at(self, t):
-        """Get right feet pose at a given time.
-
-        Args:
-            t: Time in seconds.
-        """
-        T = self.init.copy()
-        position_bigger = np.concatenate(((positions[int(t), feet_markers["l_foot"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        position_0_referential = (trans_mat@position_bigger.T)[:3].T
-        position = (position_0_referential + np.array([x_positions[int(t)], y_positions[int(t)], z_positions[int(t)]])).reshape(-1)
-        # R = T.rotation
-        # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
-        # R = np.dot(R, pin.utils.rpyToMatrix(0.0, -np.pi, 0.0))
-        # T.rotation = R
-        T.translation = position
-        return T
-    
-class WaltzPelvisPose:
-
-    def __init__(self, init_time: float, configuration: pink.Configuration):
-        """Initialize pose.
-
-        Args:
-            init: Initial transform from the wrist frame to the world frame.
-        """
-        self.init_time = init_time
-        base_config = configuration.get_transform_frame_to_world("pelvis")
-        base_pos_bigger = np.concatenate(((positions[int(init_time), pelvis_markers["pelvis"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        base_pos_0_referential = (trans_mat@base_pos_bigger.T)[:3].T
-        base_pos = (base_pos_0_referential + np.array([x_positions[int(init_time)], y_positions[int(init_time)], z_positions[int(init_time)]])).reshape(-1)
-        self.init = base_config.copy()
-        self.init.translation = base_pos
-
-    def at(self, t):
-        """Get pelvis pose at a given time.
-
-        Args:
-            t: Time in seconds.
-        """
-        T = self.init.copy()
-        position_bigger = np.concatenate(((positions[int(t), pelvis_markers["pelvis"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        position_0_referential = (trans_mat@position_bigger.T)[:3].T
-        position = (position_0_referential + np.array([x_positions[int(t)], y_positions[int(t)], z_positions[int(t)]])).reshape(-1)
-        # R = T.rotation
-        # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
-        # R = np.dot(R, pin.utils.rpyToMatrix(0.0, -np.pi, 0.0))
-        # T.rotation = R
-        T.translation = position
-        return T
-    
-class WaltzHeadPose:
-
-    def __init__(self, init_time: float, configuration: pink.Configuration):
-        """Initialize pose.
-
-        Args:
-            init: Initial transform from the wrist frame to the world frame.
-        """
-        self.init_time = init_time
-        base_config = configuration.get_transform_frame_to_world("head")
-        base_pos_bigger = np.concatenate(((positions[int(init_time), head_markers["head"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        base_pos_0_referential = (trans_mat@base_pos_bigger.T)[:3].T
-        base_pos = (base_pos_0_referential + np.array([x_positions[int(init_time)], y_positions[int(init_time)], z_positions[int(init_time)]])).reshape(-1)
-        self.init = base_config.copy()
-        self.init.translation = base_pos
-
-    def at(self, t):
-        """Get head pose at a given time.
-
-        Args:
-            t: Time in seconds.
-        """
-        T = self.init.copy()
-        position_bigger = np.concatenate(((positions[int(t), head_markers["head"]]).reshape(-1, 3), np.ones((1, 1))), axis=1)
-        position_0_referential = (trans_mat@position_bigger.T)[:3].T
-        position = (position_0_referential + np.array([x_positions[int(t)], y_positions[int(t)], z_positions[int(t)]])).reshape(-1)
-        # R = T.rotation
-        # R = np.dot(R, pin.utils.rpyToMatrix(0.0, 0.0, np.pi / 2))
-        # R = np.dot(R, pin.utils.rpyToMatrix(0.0, -np.pi, 0.0))
+        # R = np.dot(R, pin.utils.rpyToMatrix(0., 0., np.pi / 2))
+        # R = np.dot(R, pin.utils.rpyToMatrix(0., -np.pi, 0.))
         # T.rotation = R
         T.translation = position
         return T
@@ -275,92 +216,59 @@ if __name__ == "__main__":
 
     # Initialize visualization
     viz = start_meshcat_visualizer(robot)
-    right_foot_frame = viz.viewer["right_foot_pose"]
-    left_foot_frame = viz.viewer["left_foot_pose"]
-    pelvis_frame = viz.viewer["pelvis_pose"]
-    head_frame = viz.viewer["head_pose"]
-    meshcat_shapes.frame(right_foot_frame)
-    meshcat_shapes.frame(left_foot_frame)
-    meshcat_shapes.frame(pelvis_frame)
-    meshcat_shapes.frame(head_frame)
+    element_frames = {}
+    for element in element_markers:
+        element_frames[element] = viz.viewer[element + "_pose"]
+        meshcat_shapes.frame(element_frames[element])
 
     # Set initial robot configuration
     configuration = pink.Configuration(robot.model, robot.data, robot.q0)
     viz.display(configuration.q)
 
     # Tasks initialization for IK
-    left_foot_task = FrameTask(
-        "l_foot",
-        position_cost=1.0,
-        orientation_cost=1.0,
-    )
-    right_foot_task = FrameTask(
-        "r_foot",
-        position_cost=1.0,
-        orientation_cost=1.0,
-    )
-    pelvis_task = FrameTask(
-        "pelvis",
-        position_cost=1.0e-1,
-        orientation_cost=0.0,
-    )
-    head_task = FrameTask(
-        "head",
-        position_cost=1.0e-1,
-        orientation_cost=0.0,
-    )
+    element_tasks = {}
+    for element in element_markers:
+        element_tasks[element] = FrameTask(
+            element,
+            position_cost=element_costs[element][0],
+            orientation_cost=element_costs[element][1],
+        )
+        
     posture_task = PostureTask(
-        cost=1.0e-1,  # [cost] / [rad]
+        cost=1.e-1,  # [cost] / [rad]
     )
 
-    tasks = [
-        left_foot_task,
-        pelvis_task,
-        right_foot_task,
-        # posture_task,
+    tasks = [element_tasks[element] for element in element_markers]
+    tasks += [
+        posture_task,
     ]
 
     # Task target specifications
-    left_foot_task.set_target(
-        configuration.get_transform_frame_to_world("l_foot")
-    )
-    right_foot_task.set_target(
-        configuration.get_transform_frame_to_world("r_foot")
-    )
-    pelvis_task.set_target(
-        configuration.get_transform_frame_to_world("pelvis")
-    )
-    head_task.set_target(
-        configuration.get_transform_frame_to_world("head")
-    )
-
+    for element in element_markers:
+        element_tasks[element].set_target(
+            configuration.get_transform_frame_to_world(element)
+        )
     posture_task.set_target_from_configuration(configuration)
 
-    right_foot_pose = WaltzRightFootPose(init_frame, configuration)
-    left_foot_pose = WaltzLeftFootPose(init_frame, configuration)
-    pelvis_pose = WaltzPelvisPose(init_frame, configuration)
-    head_pose = WaltzHeadPose(init_frame, configuration)
+    # Initialize robot element poses
+    element_poses = {}
+    for element in element_markers:
+        element_poses[element] = RobotElementPose(init_frame, configuration, element)
 
     # Select QP solver
     solver = qpsolvers.available_solvers[0]
     if "quadprog" in qpsolvers.available_solvers:
         solver = "quadprog"
 
-    # rate = RateLimiter(frequency=200.0, warn=False)
+    # rate = RateLimiter(frequency=200., warn=False)
     # dt = rate.period
-    dt = 1.0
+    dt = 1.
     t = init_frame  # [s]
     while True:
         # Update task targets
-
-        right_foot_task.set_target(right_foot_pose.at(t))
-        left_foot_task.set_target(left_foot_pose.at(t))
-        pelvis_task.set_target(pelvis_pose.at(t))
-        head_task.set_target(head_pose.at(t))
-        right_foot_frame.set_transform(right_foot_pose.at(t).np)
-        left_foot_frame.set_transform(left_foot_pose.at(t).np)
-        pelvis_frame.set_transform(pelvis_pose.at(t).np)
-        head_frame.set_transform(head_pose.at(t).np)
+        for element in element_markers:
+            element_tasks[element].set_target(element_poses[element].at(t))
+            element_frames[element].set_transform(element_poses[element].at(t).np)
 
         # Compute velocity and integrate it into next configuration
         velocity = solve_ik(configuration, tasks, dt, solver=solver)
@@ -369,6 +277,7 @@ if __name__ == "__main__":
         # Visualize result at fixed FPS
         viz.display(configuration.q)
         t += dt
-        if t > 411.0:
+        if t > max_frame:
+            print("Restarting animation")
             t = init_frame
         time.sleep(0.03)
