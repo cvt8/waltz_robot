@@ -5,6 +5,7 @@
 
 #TODO CVT: - Jouer avec le poids des joints pour voir si on peut améliorer le mouvement
 # - Faire en sorte que le robot puisse continuer à danser sans s'arrêter. Faire boucler le mouvement ?
+# - Plot le mouvement le mouvement du robot en 2D (x, y) sur matplotlib
 # - Pour cela voir à quelle frame il revient sur son point de départ
 # - Corriger la reconnaissance du rythme - Jouer le time.sleep sur chaque frame.
 # - Générer la vidéo.
