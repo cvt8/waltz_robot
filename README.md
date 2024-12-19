@@ -16,6 +16,16 @@ To generate the video from our code, follow these steps:
 5. Run the code: `$ python waltz_robot.py`
 6. The generated video will be saved as `waltz_video.mp4` in the project directory.
 
+## Repository organisation
+
+## Repository Organization
+
+The repository is organized into the following directories:
+
+- `src`: Contains the source code for implementing the inverse kinematics and generating a video synchronized with music.
+- `research`: Includes the research materials we used to generate files and make informed decisions.
+- `poster`: Contains the LaTeX files for creating the project poster.
+- `report`: Includes the LaTeX files for the project report.
 
 ## Steps - Example Usage
 
