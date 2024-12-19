@@ -6,6 +6,8 @@ import scipy.signal
 from pydub import AudioSegment
 from robot_animation import RobotWaltzAnimation
 
+#Note: pas encore fonctionnel
+
 
 def get_bpm(file_path):
     # Load the audio file
