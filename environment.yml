@@ -25,4 +25,7 @@ dependencies:
   - tensorboard
   - pink
   - robot_descriptions
+  - joblib
   - pip
+
+# Meshcat_shapes must be installed with pip.
