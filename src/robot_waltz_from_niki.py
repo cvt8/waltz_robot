@@ -11,7 +11,7 @@
 # - Générer la vidéo.
 
 
-"""DRACO 3 humanoid standing on two feet and reaching with a hand."""
+"""Atlas v4 robot dancing waltz using joint positions etracted with the NIKI algorithm."""
 
 import joblib
 import numpy as np
@@ -38,13 +38,22 @@ except ModuleNotFoundError as exc:
 results = joblib.load('valse_constantin.pt')
 positions = results['pred_xyz_29']
 perfect_positions = False
-init_frame = 0.
-max_frame = positions.shape[0] - 1
 
+# Adjusting the sleep time to the music
+video_framerate = positions.shape[0]/14.03
+init_frame = 35.
+max_frame = positions.shape[0] - 55.
+MUSIC_BPM = 187
+total_movement_frames = max_frame - init_frame
+movement_duration_base_bpm = total_movement_frames/video_framerate
+turn_duration_new_bpm = 6*60/MUSIC_BPM
+movement_duration_new_bpm = 4*turn_duration_new_bpm
+new_bpm_framerate = total_movement_frames/movement_duration_new_bpm
+time_between_frames = 1/new_bpm_framerate
+
+# We do not use the rotation data, so that the inverse kinematics finds the optimal rotation to adapt to the movement
 element_markers = {"pelvis": 0, "r_hand": 26, "l_hand": 25, "head": 24, "r_foot": 28, "l_foot": 27}
 element_costs = {"pelvis": [1., 0.], "r_hand": [.7, 0.], "l_hand": [.7, 0.], "head": [1., 0.], "r_foot": [1., 0.], "l_foot": [1., 0.]}
-# It is more natural to get rotations to 0 in order to avoid noise.
-
 
 # Getting the optimal transformation matrix to align the movement with the (x, y) plane
 head_pose = positions[int(init_frame):, element_markers["head"]]
@@ -130,8 +139,7 @@ def get_positions_of_base_frame(niki_positions, perfect_positions=False):
     """
     if perfect_positions:
         # Paramètres de la musique
-        BPM = 187
-        small_circle_duration = 6*60/BPM
+        small_circle_duration = 6*60/MUSIC_BPM
         print(f"Durée d'un petit cercle : {small_circle_duration:.2f} secondes")
 
         # Paramètres pour le mouvement circulaire (petit cercle)
@@ -288,4 +296,4 @@ if __name__ == "__main__":
         if t > max_frame:
             print("Restarting animation")
             t = init_frame
-        time.sleep(0.03)
+        time.sleep(time_between_frames)
