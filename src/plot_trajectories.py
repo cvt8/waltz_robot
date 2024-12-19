@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.cm as cm
 import numpy as np
 
+
 def plot_element_positions(element):
     # Read element positions from file
     file = 'element_positions.csv'

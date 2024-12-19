@@ -285,7 +285,7 @@ if __name__ == "__main__":
 
 
         # Save the positions of the elements in a csv file
-        with open('/home/cvaillanttenzer/Documents/waltz_robot/src/element_positions.csv', 'w', newline='') as f:
+        with open('element_positions.csv', 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['Time', 'Pelvis', 'Right Hand', 'Left Hand', 'Head', 'Right Foot', 'Left Foot'])
             for t in range(transformed_positions.shape[0]):
