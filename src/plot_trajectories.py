@@ -55,4 +55,4 @@ def plot_element_positions(element, start_frame=35, cutoff_at_end=50):
     plt.show()
 
 if __name__ == '__main__':
-    plot_element_positions('Pelvis')
+    plot_element_positions('Left Hand')
