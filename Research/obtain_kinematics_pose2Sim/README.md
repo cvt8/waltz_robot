@@ -1,3 +1,8 @@
+# Obtaining the kinematic through Pose2sim
+
+This folder contain the input files we use to obtain the kinematic using Pose2Sim.
+
+
 ## Reproducing the results
 
 To obtain the results above, I installed the Pose2Sim pip package [following the installation steps](https://github.com/perfanalytics/pose2sim/?tab=readme-ov-file#installation-and-demonstration) and then followed the steps described in [The Pose2Sim repo on GitHub](https://github.com/perfanalytics/pose2sim/?tab=readme-ov-file#use-on-your-own-data) to get the kinematocs data, here is a summary of the steps I followed:
