@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 #TODO CVT: - Jouer avec le poids des joints pour voir si on peut améliorer le mouvement
-# - Faire en sorte que le robot puisse continuer à danser sans s'arrêter. Faire boucler le mouvement ?
 # - Plot le mouvement le mouvement du robot en 2D (x, y) sur matplotlib
 # - Pour cela voir à quelle frame il revient sur son point de départ
 # - Corriger la reconnaissance du rythme - Jouer le time.sleep sur chaque frame.
@@ -26,6 +25,7 @@ import pink
 from pink import solve_ik
 from pink.tasks import FrameTask, JointCouplingTask, PostureTask
 from pink.visualization import start_meshcat_visualizer
+import csv
 
 try:
     from robot_descriptions.loaders.pinocchio import load_robot_description
@@ -53,7 +53,7 @@ time_between_frames = 1/new_bpm_framerate
 
 # We do not use the rotation data, so that the inverse kinematics finds the optimal rotation to adapt to the movement
 element_markers = {"pelvis": 0, "r_hand": 26, "l_hand": 25, "head": 24, "r_foot": 28, "l_foot": 27}
-element_costs = {"pelvis": [1., 0.], "r_hand": [.7, 0.], "l_hand": [.7, 0.], "head": [1., 0.], "r_foot": [1., 0.], "l_foot": [1., 0.]}
+element_costs = {"pelvis": [1., 0.], "r_hand": [.7, 0.], "l_hand": [.7, 0.], "head": [1., 0.], "r_foot": [1.2, 0.], "l_foot": [1.2, 0.]}
 
 # Getting the optimal transformation matrix to align the movement with the (x, y) plane
 head_pose = positions[int(init_frame):, element_markers["head"]]
@@ -195,6 +195,7 @@ for t in range(transformed_positions.shape[0]):
 
 element_positions = {element: transformed_positions[:, element_markers[element]] for element in element_markers}
 
+
 class RobotElementPose:
     """ Base class used to define the position of a robot element at a given time."""
     def __init__(self, init_time: float, configuration: pink.Configuration, element_name: str):
@@ -224,6 +225,17 @@ class RobotElementPose:
         # T.rotation = R
         T.translation = position
         return T
+
+    def get_element_positions(element_name):
+            """Get the list of positions for a specific element.
+
+            Args:
+                element_name: Name of the element.
+
+            Returns:
+                positions: List of positions for the element.
+            """
+            return element_positions[element_name]
 
 if __name__ == "__main__":
     robot = load_robot_description(
@@ -270,6 +282,15 @@ if __name__ == "__main__":
     element_poses = {}
     for element in element_markers:
         element_poses[element] = RobotElementPose(init_frame, configuration, element)
+
+
+        # Save the positions of the elements in a csv file
+        with open('/home/cvaillanttenzer/Documents/waltz_robot/src/element_positions.csv', 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['Time', 'Pelvis', 'Right Hand', 'Left Hand', 'Head', 'Right Foot', 'Left Foot'])
+            for t in range(transformed_positions.shape[0]):
+                row = [t, element_positions['pelvis'][t], element_positions['r_hand'][t], element_positions['l_hand'][t], element_positions['head'][t], element_positions['r_foot'][t], element_positions['l_foot'][t]]
+                writer.writerow(row)
 
     # Select QP solver
     solver = qpsolvers.available_solvers[0]
