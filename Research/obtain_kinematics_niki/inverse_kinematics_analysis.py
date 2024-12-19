@@ -1,7 +1,10 @@
-import numpy as np
+'''This file plot the 3D coordinates of the different joints dynamically over time and the variations of phi over time
+The file is used to analyze the inverse kinematics points obtained from the file valse_constantin.pt
+Those are the simulations calculted with niki. The file is located in Research/obtain_kinematics_niki/inverse_kinematics_analysis.py'''
+
 import matplotlib.pyplot as plt
-import torch
 import joblib
+import matplotlib.cm as cm
 
 # Load the inverse kinematics points from the file
 file_path = 'valse_constantin.pt'
@@ -48,8 +51,6 @@ plt.show()
 
 # PLot the variations of phi over time
 fig, ax = plt.subplots()
-
-import matplotlib.cm as cm
 
 # Create a color map
 cmap = cm.get_cmap('viridis', points['pred_phi'].shape[1])

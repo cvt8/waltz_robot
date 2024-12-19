@@ -27,5 +27,7 @@ dependencies:
   - robot_descriptions
   - joblib
   - pip
+  - pip :
+    - meshcat-shapes
 
 # Meshcat_shapes must be installed with pip.
