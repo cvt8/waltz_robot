@@ -32,7 +32,7 @@ def plot_element_positions(element, start_frame=35, cutoff_at_end=50):
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title(f'Positions of {element}')
-    plt.savefig(f'{element}_positions_with_color_scale.png')
+    plt.savefig(f'plots/{element}_positions_with_color_scale.png')
     plt.close()
 
     # Plot the trajectory with arrows
@@ -51,7 +51,7 @@ def plot_element_positions(element, start_frame=35, cutoff_at_end=50):
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title(f'Positions of {element}')
-    plt.savefig(f'{element}_positions_with_arrows.png')
+    plt.savefig(f'plots/{element}_positions_with_arrows.png')
     plt.close()
 
 if __name__ == '__main__':
