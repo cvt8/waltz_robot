@@ -1,6 +1,6 @@
 import essentia.standard as ess
 
-def music_length(file_path: str) -> float:
+def music_lenght(file_path: str) -> float:
     """
     Analyzes the length of a given music file.
 
@@ -10,6 +10,10 @@ def music_length(file_path: str) -> float:
     Returns:
     - float: The estimated length of the music file in seconds.
     """
-    audio = ess.MonoLoader(filename=file_path)()
-    length = len(audio) / audio.sampleRate
+    loader = ess.MonoLoader(filename=file_path)
+    audio = loader()  # This returns a numpy array with the audio samples
+    sample_rate = 44100
+    
+    length = len(audio) / sample_rate
+
     return length
