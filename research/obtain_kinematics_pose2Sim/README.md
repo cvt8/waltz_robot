@@ -5,7 +5,7 @@ This folder contain the input files we use to obtain the kinematic using Pose2Si
 
 ## Reproducing the results
 
-To obtain the results above, I installed the Pose2Sim pip package [following the installation steps](https://github.com/perfanalytics/pose2sim/?tab=readme-ov-file#installation-and-demonstration) and then followed the steps described in [The Pose2Sim repo on GitHub](https://github.com/perfanalytics/pose2sim/?tab=readme-ov-file#use-on-your-own-data) to get the kinematocs data, here is a summary of the steps I followed:
+To obtain the results above, I installed the Pose2Sim pip package [following the installation steps](https://github.com/perfanalytics/pose2sim/?tab=readme-ov-file#installation-and-demonstration) and then followed the steps described in [The Pose2Sim repo on GitHub](https://github.com/perfanalytics/pose2sim/?tab=readme-ov-file#use-on-your-own-data) to get the kinematics data, here is a summary of the steps I followed:
 - I populated the videos folder with the video I wanted to analyze, I needed to duplicate it as the algorithm assumes we have at least two camera angles of the same scene.
 - I populated the calibration folder with the necessary pictures for the calibration process.
 - I made sure to be inside the `Demo_SinglePerson` folder (ie I typed `cd obtain_kinematics/Demo_SinglePerson` in the terminal).

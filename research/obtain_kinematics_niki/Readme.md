@@ -21,42 +21,31 @@ Follow the installation instructions provided in the repository to set up the en
 
 ### 1. Prepare Input Data
 
-- **Videos**: Place the video(s) you want to analyze in the appropriate folder (e.g., `input/videos`). If the algorithm requires multiple camera angles, duplicate the video or provide additional perspectives.
-- **Calibration**: Populate the `input/calibration` folder with calibration images or files necessary for accurate positional mapping.
+- **Videos**: Place the video(s) you want to analyze in the appropriate folder (e.g., `input/videos`).
+- **Pretrained models**: Download the pretrained HybrIK and Single-stage NIKI models from [this link](https://sjtueducn-my.sharepoint.com/:f:/g/personal/biansiyuan_sjtu_edu_cn/EtGnxMf0bkpPhB8OPecnzhoBbKzgXrhyVguV_B5g4r8_rQ?e=UGDdRJ), and put them in the exp/ folder.
 
 ### 2. Run NIKI Analysis
 
-Ensure you are in the main project directory, then open an interactive Python console:
+Ensure you are in the main project directory, then run the following command:
 
 ```bash
-ipython
+python scripts/demo.py --video-name {VIDEO-PATH} -out-dir {OUTPUT-DIR}
 ```
 
-Run the following commands to execute the pipeline:
-
-```python
-from NIKI import NIKI
-
-# Step-by-step process
-NIKI.pose_estimation()    # Estimate poses from video
-NIKI.calibration()        # Calibrate cameras
-NIKI.synchronization()    # Synchronize multi-camera data
-NIKI.triangulation()      # Triangulate 3D positions
-NIKI.filtering()          # Apply filters to refine data
-NIKI.cinematic_positions() # Compute cinematic positions
-```
+Replace `{VIDEO-PATH}` with the path to the video file you want to analyze and `{OUTPUT-DIR}` with the directory where you want to save the output files.
 
 ### 3. Output
 
-The processed cinematic position data will be saved in the `output` folder:
-- **3D Position Data**: Check the `output/3d_positions` folder.
-- **Cinematic Metrics**: Review detailed cinematic metrics in the `output/cinematic_metrics` file.
+The processed cinematic position data will be saved in the `{OUTPUT-DIR}` folder you specified. The output includes:
+- **raw_images**: In the `raw_images` folder, you will find the raw images extracted from the video.
+- **res_images**: The `res_images` folder contains the images after processing, where the optimal humanoid model is overlaid on the raw images.
+- **res_{VIDEO-NAME}.mp4**: The processed video with the humanoid model overlaid on the original video.
+- **{VIDEO-NAME}.pt**: The data extracted from the video, which is used by our model to generate the robot animation. It can be opened using Python's `joblib` library for instance and notably contains the 3D positions of the joints in the referential of the pelvis (`pred_xyz_29` key) and the position of the pelvis in the referential of the camera (`pred_cam_root` key).
 
 
 ## Additional Notes
 
-- Ensure that input data is of high quality for optimal results.
-- Use synchronized videos for multi-camera setups to avoid inconsistencies.
+- High quality videos are not mandatory and can significantly increase processing time. However, a stable video with a clear view of the whole body is mandatory.
 - Verify the output files for completeness and accuracy.
 
 ## References

@@ -3,7 +3,7 @@
 
 Authors: Charles Monte and Constantin Vaillant-Tenzer
 
-This project simulates and realizes the inverse kinematics of a robot dancing waltz. We primarily focused on using the Atlas v3 robot from Boston Dynamics. However, our code can be easily adapted to work with any robot by making the necessary semantic adjustments.
+This project simulates and realizes the inverse kinematics of a robot dancing waltz. We primarily focused on using the Atlas v4 robot from Boston Dynamics. However, our code can be easily adapted to work with any robot by making the necessary semantic adjustments.
 
 ## How to Run the Code
 
@@ -15,8 +15,6 @@ To generate the video from our code, follow these steps:
 4. Activate the conda environment `$ conda activate waltz_robot`
 5. Run the code: `$ python waltz_robot.py`
 6. The generated video will be saved as `waltz_video.mp4` in the project directory.
-
-## Repository organisation
 
 ## Repository Organization
 
@@ -43,7 +41,7 @@ To make a video of yourself dancing the waltz, you can follow these steps:
 
 To generate a new video using Niki, follow these steps:
 
-1. Clone the Niki repository from [insert link to Niki repository].
+1. Clone the Niki repository from [here](https://github.com/Jeff-sjtu/NIKI).
 2. Install the required dependencies as mentioned in the repository's README.
 3. Run the Niki script with the appropriate parameters to generate a new video.
 4. Save the generated video file on your computer.
