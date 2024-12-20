@@ -24,11 +24,12 @@ dependencies:
   - stable-baselines3
   - tensorboard
   - pink
-  - cv2
   - robot_descriptions
   - joblib
   - pip
+  - opencv
   - pip :
     - meshcat-shapes
+    - essentia
 
 # Meshcat_shapes must be installed with pip.

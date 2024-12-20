@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 #
 # SPDX-License-Identifier: Apache-2.0
-
-#TODO CVT: 
-# - Corriger la reconnaissance du rythme - Jouer le time.sleep sur chaque frame.
-# - Générer la vidéo.
+# Authors: Charles Monte and Constantin Vaillant-Tenzer
+# Date: 2024-12-20 (last update)
+# Usage : python3 robot_waltz_from_niki.py 
 
 
 """Atlas v4 robot dancing waltz using joint positions etracted with the NIKI algorithm."""
@@ -313,10 +312,12 @@ def animate_robot_dancing(robot_name, music_bpm, init_frame=35., frames_cut_end=
             t = init_frame
         time.sleep(time_between_frames)
         
-if __name__ == "__main__":
+
+def main():
     parser = argparse.ArgumentParser(
-        description="Atlas v4 robot dancing waltz using joint positions etracted with the NIKI algorithm."
+        description="Atlas v4 robot dancing waltz using joint positions extracted with the NIKI algorithm."
     )
+
     parser.add_argument(
         "--robot_name",
         type=str,
@@ -353,4 +354,13 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    animate_robot_dancing(args.robot_name, args.bpm, args.init_frame, args.frames_cut_end, args.nb_turns_in_vid)
+    animate_robot_dancing(
+        args.robot_name,
+        args.bpm,
+        args.init_frame,
+        args.frames_cut_end,
+        args.nb_turns_in_vid,
+    )
+
+if __name__ == "__main__":
+    main()

@@ -1,4 +1,4 @@
-# A robot that can dance waltz
+# Make an humanoid robot dance the waltz
 ## Project Description
 
 Authors: Charles Monte and Constantin Vaillant-Tenzer
@@ -75,7 +75,7 @@ If you would like to contribute to this project, please follow these guidelines:
 If you use our work in your research or project, please cite it using the following LaTeX citation:
 
 ```
-@article{monte_vaillant_tenzer_2022,
+@article{monte_vaillant_tenzer_2024,
     title={Inverse Kinematics of a Robot Dancing Waltz},
     author={Monte, Charles and Vaillant-Tenzer, Constantin},
     journal={},
