@@ -12,6 +12,7 @@
 
 """Atlas v4 robot dancing waltz using joint positions etracted with the NIKI algorithm."""
 
+import argparse
 import joblib
 import numpy as np
 import pandas as pd
@@ -39,27 +40,9 @@ results = joblib.load('valse_constantin.pt')
 positions = results['pred_xyz_29']
 perfect_positions = False
 
-# Adjusting the sleep time to the music
-video_framerate = positions.shape[0]/14.03
-init_frame = 35.
-max_frame = positions.shape[0] - 55.
-MUSIC_BPM = 187
-total_movement_frames = max_frame - init_frame
-movement_duration_base_bpm = total_movement_frames/video_framerate
-turn_duration_new_bpm = 6*60/MUSIC_BPM
-movement_duration_new_bpm = 4*turn_duration_new_bpm
-new_bpm_framerate = total_movement_frames/movement_duration_new_bpm
-time_between_frames = 1/new_bpm_framerate
-
 # We do not use the rotation data, so that the inverse kinematics finds the optimal rotation to adapt to the movement
 element_markers = {"pelvis": 0, "r_hand": 26, "l_hand": 25, "head": 24, "r_foot": 28, "l_foot": 27}
-element_costs = {"pelvis": [1., 0.], "r_hand": [.7, 0.], "l_hand": [.7, 0.], "head": [1., 0.], "r_foot": [1.2, 0.], "l_foot": [1.2, 0.]}
-
-# Getting the optimal transformation matrix to align the movement with the (x, y) plane
-head_pose = positions[int(init_frame):, element_markers["head"]]
-pelvis_pose = positions[int(init_frame):, element_markers["pelvis"]]
-r_foot_pose = positions[int(init_frame):, element_markers["r_foot"]]
-l_foot_pose = positions[int(init_frame):, element_markers["l_foot"]]
+element_costs = {"pelvis": [1., 0.], "r_hand": [.7, 0.], "l_hand": [.7, 0.], "head": [1., 0.], "r_foot": [1., 0.], "l_foot": [1., 0.]}
 
 def get_transformation_matrix(values):
     """Get the transformation matrix from the parameters.
@@ -111,23 +94,7 @@ def apply_transformation(transformation_matrix, positions):
             
     return transformed_positions
 
-def cost(rot_angles):
-    trans_mat = get_transformation_matrix(rot_angles)
-    transformed_head = apply_transformation(transformation_matrix=trans_mat, positions=head_pose)
-    transformed_pelvis = apply_transformation(transformation_matrix=trans_mat, positions=pelvis_pose)
-    transformed_r_foot = apply_transformation(transformation_matrix=trans_mat, positions=r_foot_pose)
-    transformed_l_foot = apply_transformation(transformation_matrix=trans_mat, positions=l_foot_pose)
-
-    cost = np.sum(transformed_head[:, 2] - 1.5)**2
-    cost += np.sum(transformed_pelvis[:, 0] - transformed_head[:, 0])**2
-    cost += np.sum(transformed_pelvis[:, 1] - transformed_head[:, 1])**2
-    cost += np.abs(np.sum(transformed_l_foot[:, 2]))
-    cost += np.abs(np.sum(transformed_r_foot[:, 2]))
-    # cost = np.var(transformed_pelvis[:, 2])
-    # cost += np.mean(transformed_feet[:, 1] - transformed_head[:, 1])**2
-    return cost
-
-def get_positions_of_base_frame(niki_positions, perfect_positions=False):
+def get_positions_of_base_frame(niki_positions, music_bpm, perfect_positions=False):
     """Get the positions of the base frame in the world frame.
     
     Args:
@@ -139,7 +106,7 @@ def get_positions_of_base_frame(niki_positions, perfect_positions=False):
     """
     if perfect_positions:
         # Paramètres de la musique
-        small_circle_duration = 6*60/MUSIC_BPM
+        small_circle_duration = 6*60/music_bpm
         print(f"Durée d'un petit cercle : {small_circle_duration:.2f} secondes")
 
         # Paramètres pour le mouvement circulaire (petit cercle)
@@ -179,54 +146,84 @@ def get_positions_of_base_frame(niki_positions, perfect_positions=False):
     base_frame_positions = np.concatenate((x_total.reshape(-1, 1), y_total.reshape(-1, 1), z_total.reshape(-1, 1)), axis=1)
     return base_frame_positions
 
-values_0 = [np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.]
-# values_opt = fmin_bfgs(cost, values_0)
-trans_mat = get_transformation_matrix(values_0)
+def animate_robot_dancing(robot_name, music_bpm, init_frame=35., frames_cut_end=55., nb_turns_in_vid=4):
+    # Adjusting the sleep time to the music
+    max_frame = positions.shape[0] - frames_cut_end
+    total_movement_frames = max_frame - init_frame
+    turn_duration_new_bpm = 6*60/music_bpm
+    movement_duration_new_bpm = nb_turns_in_vid*turn_duration_new_bpm
+    new_bpm_framerate = total_movement_frames/movement_duration_new_bpm
+    time_between_frames = 1/new_bpm_framerate
+    
+    # Getting the optimal transformation matrix to align the movement with the (x, y) plane
+    head_pose = positions[int(init_frame):int(max_frame), element_markers["head"]]
+    pelvis_pose = positions[int(init_frame):int(max_frame), element_markers["pelvis"]]
+    r_foot_pose = positions[int(init_frame):int(max_frame), element_markers["r_foot"]]
+    l_foot_pose = positions[int(init_frame):int(max_frame), element_markers["l_foot"]]
 
-# Apply transformation matrix to all the positions
-transformed_positions = apply_transformation(transformation_matrix=trans_mat, positions=positions)
+    def cost(rot_angles):
+        trans_mat = get_transformation_matrix(rot_angles)
+        transformed_head = apply_transformation(transformation_matrix=trans_mat, positions=head_pose)
+        transformed_pelvis = apply_transformation(transformation_matrix=trans_mat, positions=pelvis_pose)
+        transformed_r_foot = apply_transformation(transformation_matrix=trans_mat, positions=r_foot_pose)
+        transformed_l_foot = apply_transformation(transformation_matrix=trans_mat, positions=l_foot_pose)
 
-nike_base_positions_orig = results['pred_cam_root']
-transformed_nike_base_positions = apply_transformation(transformation_matrix=trans_mat, positions=nike_base_positions_orig)
-base_frame_positions = get_positions_of_base_frame(niki_positions=transformed_nike_base_positions - transformed_nike_base_positions[0])
+        cost = np.sum(transformed_head[:, 2] - 1.5)**2
+        cost += np.sum(transformed_pelvis[:, 0] - transformed_head[:, 0])**2
+        cost += np.sum(transformed_pelvis[:, 1] - transformed_head[:, 1])**2
+        cost += np.abs(np.sum(transformed_l_foot[:, 2]))
+        cost += np.abs(np.sum(transformed_r_foot[:, 2]))
+        # cost = np.var(transformed_pelvis[:, 2])
+        # cost += np.mean(transformed_feet[:, 1] - transformed_head[:, 1])**2
+        return cost
 
-for t in range(transformed_positions.shape[0]):
-    transformed_positions[t] += base_frame_positions[t]
+    transformation_values = [np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.]
+    # values_opt = fmin_bfgs(cost, values_0)
+    trans_mat = get_transformation_matrix(transformation_values)
 
-element_positions = {element: transformed_positions[:, element_markers[element]] for element in element_markers}
+    # Apply transformation matrix to all the positions
+    transformed_positions = apply_transformation(transformation_matrix=trans_mat, positions=positions)
 
+    nike_base_positions_orig = results['pred_cam_root']
+    transformed_nike_base_positions = apply_transformation(transformation_matrix=trans_mat, positions=nike_base_positions_orig)
+    base_frame_positions = get_positions_of_base_frame(niki_positions=transformed_nike_base_positions - transformed_nike_base_positions[0], music_bpm=music_bpm, perfect_positions=perfect_positions)
 
-class RobotElementPose:
-    """ Base class used to define the position of a robot element at a given time."""
-    def __init__(self, init_time: float, configuration: pink.Configuration, element_name: str):
-        """Initialize pose.
+    for t in range(transformed_positions.shape[0]):
+        transformed_positions[t] += base_frame_positions[t]
 
-        Args:
-            init: Initial transform from the element frame to the world frame.
-        """
-        self.init_time = init_time
-        self.element_name = element_name
-        init_config = configuration.get_transform_frame_to_world(element_name)
-        init_position = element_positions[element_name][int(init_time)]
-        self.init = init_config.copy()
-        self.init.translation = init_position
+    element_positions = {element: transformed_positions[:, element_markers[element]] for element in element_markers}
+    
+    class RobotElementPose:
+        """ Base class used to define the position of a robot element at a given time."""
+        def __init__(self, init_time: float, configuration: pink.Configuration, element_name: str):
+            """Initialize pose.
 
-    def at(self, t):
-        """Get element pose at a given time.
+            Args:
+                init: Initial transform from the element frame to the world frame.
+            """
+            self.init_time = init_time
+            self.element_name = element_name
+            init_config = configuration.get_transform_frame_to_world(element_name)
+            init_position = element_positions[element_name][int(init_time)]
+            self.init = init_config.copy()
+            self.init.translation = init_position
 
-        Args:
-            t: Time in seconds.
-        """
-        T = self.init.copy()
-        position = element_positions[self.element_name][int(t)]
-        # R = T.rotation
-        # R = np.dot(R, pin.utils.rpyToMatrix(0., 0., np.pi / 2))
-        # R = np.dot(R, pin.utils.rpyToMatrix(0., -np.pi, 0.))
-        # T.rotation = R
-        T.translation = position
-        return T
+        def at(self, t):
+            """Get element pose at a given time.
 
-    def get_element_positions(element_name):
+            Args:
+                t: Time in seconds.
+            """
+            T = self.init.copy()
+            position = element_positions[self.element_name][int(t)]
+            # R = T.rotation
+            # R = np.dot(R, pin.utils.rpyToMatrix(0., 0., np.pi / 2))
+            # R = np.dot(R, pin.utils.rpyToMatrix(0., -np.pi, 0.))
+            # T.rotation = R
+            T.translation = position
+            return T
+
+        def get_element_positions(element_name):
             """Get the list of positions for a specific element.
 
             Args:
@@ -236,10 +233,9 @@ class RobotElementPose:
                 positions: List of positions for the element.
             """
             return element_positions[element_name]
-
-if __name__ == "__main__":
+    
     robot = load_robot_description(
-        "atlas_v4_description", root_joint=pin.JointModelFreeFlyer()
+        robot_name, root_joint=pin.JointModelFreeFlyer()
     )
 
     # Initialize visualization
@@ -263,7 +259,7 @@ if __name__ == "__main__":
         )
         
     posture_task = PostureTask(
-        cost=1.e-1,  # [cost] / [rad]
+        cost=1e-1,  # [cost] / [rad]
     )
 
     tasks = [element_tasks[element] for element in element_markers]
@@ -318,3 +314,40 @@ if __name__ == "__main__":
             print("Restarting animation")
             t = init_frame
         time.sleep(time_between_frames)
+        
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Atlas v4 robot dancing waltz using joint positions etracted with the NIKI algorithm."
+    )
+    parser.add_argument(
+        "--robot_name",
+        type=str,
+        default="atlas_v4_description",
+        help="Robot name, e.g. 'atlas_v4_description'",
+    )
+    parser.add_argument(
+        "--bpm",
+        type=int,
+        default=187,
+        help="Beats per minute of the music",
+    )
+    parser.add_argument(
+        "--init_frame",
+        type=int,
+        default=35,
+        help="Initial frame of the video where the robot starts dancing",
+    )
+    parser.add_argument(
+        "--frames_cut_end",
+        type=int,
+        default=55,
+        help="Number of frames to cut at the end of the video",
+    )
+    parser.add_argument(
+        "--nb_turns_in_vid",
+        type=int,
+        default=4,
+        help="Number of waltz right turns in the video",
+    )
+    args = parser.parse_args()
+    animate_robot_dancing(args.robot_name, args.bpm, args.init_frame, args.frames_cut_end, args.nb_turns_in_vid)

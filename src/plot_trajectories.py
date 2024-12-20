@@ -4,7 +4,7 @@ import matplotlib.cm as cm
 import numpy as np
 
 
-def plot_element_positions(element):
+def plot_element_positions(element, start_frame=35, cutoff_at_end=50):
     # Read element positions from file
     file = 'element_positions.csv'
     data = pd.read_csv(file)
@@ -15,6 +15,7 @@ def plot_element_positions(element):
         [float(coord) for coord in position.strip('[]').split()] 
         for position in positions
     ]
+    positions = positions[start_frame: len(positions) - cutoff_at_end]
     print(positions)
 
     # Extract x and y positions
@@ -54,4 +55,4 @@ def plot_element_positions(element):
     plt.show()
 
 if __name__ == '__main__':
-    plot_element_positions('Pelvis')
+    plot_element_positions('Left Hand')
