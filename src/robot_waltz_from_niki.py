@@ -344,6 +344,21 @@ def main():
         default=4,
         help="Number of waltz right turns in the video",
     )
+    
+    parser.add_argument(
+        "--transformation_values",
+        type=float,
+        nargs="+",
+        default=[np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.],
+        help="List of 9 values [alpha, beta, gamma, x, y, z, sx, sy, sz]",
+    )
+    
+    parser.add_argument(
+        "--music_length",
+        type=int,
+        default=180,
+        help="Length of the music in seconds",
+    )
 
     args = parser.parse_args()
     animate_robot_dancing(
@@ -352,6 +367,8 @@ def main():
         args.init_frame,
         args.frames_cut_end,
         args.nb_turns_in_vid,
+        args.transformation_values,
+        args.music_length,
     )
 
 if __name__ == "__main__":
