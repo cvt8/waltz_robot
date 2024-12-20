@@ -38,7 +38,7 @@ To make a video of yourself dancing the waltz, you can follow these steps:
 5. Save the video file on your computer.
 
 For intance, we started from this video:
-![](/research/obtain_kinematics_niki/VID20241126155236.mp4) 
+<video src="/research/obtain_kinematics_niki/VID20241126155236.mp4" controls muted></video>
 
 
 ### Use Niki to Generate a New Video
@@ -52,7 +52,6 @@ To generate a new video using Niki, follow these steps:
 
 You will get a video like this:
 ![](/research/obtain_kinematics_niki/res_valse_constantin.mp4) 
-
 
 ### Select a Music
 
