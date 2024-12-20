@@ -282,10 +282,9 @@ def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init
     if "quadprog" in qpsolvers.available_solvers:
         solver = "quadprog"
 
-    dt = 1.
     t = init_frame  # [s]
     animation_frames = []
-    nb_frames = int(music_length * time_between_frames)
+    nb_frames = int(music_length / time_between_frames)
 
     for i in range(nb_frames):
         # Update task targets
@@ -294,28 +293,20 @@ def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init
             element_frames[element].set_transform(element_poses[element].at(t).np)
 
         # Compute velocity and integrate it into next configuration
-        velocity = solve_ik(configuration, tasks, dt, solver=solver)
-        configuration.integrate_inplace(velocity, dt)
+        velocity = solve_ik(configuration, tasks, time_between_frames, solver=solver)
+        configuration.integrate_inplace(velocity, time_between_frames)
 
         # Visualize result at fixed FPS
-        print(f"Displaying configuration at time {t}: {configuration.q}")
         viz.display(configuration.q)
-        print("Configuration displayed")
-        t += dt
+        t += 1.
         if t > max_frame:
             print("Restarting animation")
             t = init_frame
-        #frame = viz.captureImage()
-        print("Frame captured")
-        #animation_frames.append(frame[:,:,:3])
-        time.sleep(dt)
+        frame = viz.captureImage()
+        animation_frames.append(frame[:,:,:3])
+        time.sleep(time_between_frames)
 
-
-        #if frame is None:
-         #   print("Error: Frame capture failed.")
-         #   break
-
-        #animation_frames.append(frame[:,:,:3])
+        animation_frames.append(frame[:,:,:3])
     
     return animation_frames
     
