@@ -16,7 +16,6 @@ def plot_element_positions(element, start_frame=35, cutoff_at_end=50):
         for position in positions
     ]
     positions = positions[start_frame: len(positions) - cutoff_at_end]
-    print(positions)
 
     # Extract x and y positions
     x_positions = [position[0] for position in positions]
@@ -33,7 +32,8 @@ def plot_element_positions(element, start_frame=35, cutoff_at_end=50):
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title(f'Positions of {element}')
-    plt.savefig(f'{element}_positions_with_color_scale.png')
+    plt.savefig(f'plots/{element}_positions_with_color_scale.png')
+    plt.close()
 
     # Plot the trajectory with arrows
     plt.figure(figsize=(8, 6))
@@ -51,8 +51,10 @@ def plot_element_positions(element, start_frame=35, cutoff_at_end=50):
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title(f'Positions of {element}')
-    plt.savefig(f'{element}_positions_with_arrows.png')
-    plt.show()
+    plt.savefig(f'plots/{element}_positions_with_arrows.png')
+    plt.close()
 
 if __name__ == '__main__':
-    plot_element_positions('Left Hand')
+    list_object =['Pelvis', 'Right Hand', 'Left Hand', 'Head', 'Right Foot', 'Left Foot']
+    for element in list_object:
+        plot_element_positions(element)

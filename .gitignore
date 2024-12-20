@@ -10,6 +10,7 @@ __pycache__/
 *.so
 
 #Latex build files
+*.tex.bak
 *.aux
 *.bbl
 *.blg
