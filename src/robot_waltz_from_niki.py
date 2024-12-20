@@ -17,7 +17,6 @@ import pinocchio as pin
 import qpsolvers
 import time
 from scipy.signal import savgol_filter
-
 import meshcat_shapes
 import pink
 from pink import solve_ik

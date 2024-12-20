@@ -2,10 +2,9 @@ import os
 import subprocess
 import numpy as np
 import cv2
-from src.robot_waltz_from_niki import animate_robot_dancing
+#from src.robot_waltz_from_niki import animate_robot_dancing
 from src.bpm_detection import get_bpm
-
-#Note: pas encore fonctionnel
+from src.music_lenght_detection import music_lenght
 
 
 def create_video_robot(audio_file, background_image, output_file, credits_text, robot_name="atlas_v4_description", init_frame=30, frames_cut_end=55, nb_turns_in_vid=4):
@@ -63,12 +62,14 @@ def create_video_robot(audio_file, background_image, output_file, credits_text, 
 
 if __name__ == '__main__':
     music_file_path = 'Chostakovitch_Kitaenko_w2.mp3'
-    print(f"BPM: {bpm}")
     record_video_path = 'robot_waltz.mp4'
     background_image_path = 'ballroom.jpg'
 
     credits_text = 'A video realized by Constantin Vaillant-Tenzer and Charles Monte' + '\n' \
                    + 'Music: Chostakovitch, waltz #2 - Directed by D. Kitaenko' + '\n' \
+
+    music_lenght = music_lenght(music_file_path)
+    print(f"Lenght: {music_lenght}")
 
     # Example usage
     create_video(music_file_path, background_image_path, record_video_path, credit_text)
