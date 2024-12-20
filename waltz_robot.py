@@ -7,7 +7,7 @@ from src.bpm_detection import get_bpm
 from src.music_lenght_detection import music_lenght
 
 
-def create_video_robot(audio_file, background_image, output_file, credits_text, robot_name="atlas_v4_description", init_frame=30, frames_cut_end=55, nb_turns_in_vid=4):
+def create_video_robot(audio_file, background_image, output_file, credits_text, robot_name="atlas_v4_description", init_frame=30, frames_cut_end=55, nb_turns_in_vid=4, transformation_values = [np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.]):
 
     def create_video(animation_frames, audio_file, background_image, output_file, credits_text):
         # Load background image
@@ -55,7 +55,7 @@ def create_video_robot(audio_file, background_image, output_file, credits_text, 
     bpm = get_bpm(audio_file)
     mus_lenght = music_lenght(audio_file)
 
-    animation_frames = animate_robot_dancing(robot_name, bpm, init_frame, frames_cut_end, nb_turns_in_vid, mus_lenght)
+    animation_frames = animate_robot_dancing(robot_name, bpm, init_frame, frames_cut_end, nb_turns_in_vid, transformation_values, mus_lenght)
     
     # Create a video with the robot dancing to the music
     create_video(animation_frames, audio_file, background_image, output_file, credits_text)
@@ -65,6 +65,7 @@ if __name__ == '__main__':
     music_file_path = 'Chostakovitch_Kitaenko_w2.mp3'
     record_video_path = 'robot_waltz.mp4'
     background_image_path = 'ballroom.jpg'
+    transformation_values = [np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.]
 
     credits_text = 'A video realized by Constantin Vaillant-Tenzer and Charles Monte' + '\n' \
                    + 'Music: Chostakovitch, waltz #2 - Directed by D. Kitaenko' + '\n' \

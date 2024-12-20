@@ -4,7 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # Authors: Charles Monte and Constantin Vaillant-Tenzer
 # Date: 2024-12-20 (last update)
-# Usage : python3 robot_waltz_from_niki.py 
+# Usage : python3 robot_waltz_from_niki.py --robot_name atlas_v4_description --bpm 187 --init_frame 35 --frames_cut_end 55 --nb_turns_in_vid 4 --transformation_values 3.141592653589793 0.0 -1.5707963267948966 0.0 0.0 1.0 2.0 2.0 2.0 --music_length 180
+# The arguments are optional, the default values are the ones used in the example above.
+# Note that this code is only stable for -robot_name atlas_v4_description as the joints parameters and description of each robots have different names.
+
 
 
 """Atlas v4 robot dancing waltz using joint positions etracted with the NIKI algorithm."""
@@ -221,6 +224,11 @@ def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init
 
     # Initialize visualization
     viz = start_meshcat_visualizer(robot)
+    if not viz.viewer:
+        print("Error: MeshCat viewer is not opening.")
+        return
+
+
     element_frames = {}
     for element in element_markers:
         element_frames[element] = viz.viewer[element + "_pose"]
@@ -277,7 +285,7 @@ def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init
     dt = 1.
     t = init_frame  # [s]
     animation_frames = []
-    nb_frames = music_length * time_between_frames
+    nb_frames = int(music_length * time_between_frames)
 
     for i in range(nb_frames):
         # Update task targets
@@ -290,15 +298,24 @@ def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init
         configuration.integrate_inplace(velocity, dt)
 
         # Visualize result at fixed FPS
+        print(f"Displaying configuration at time {t}: {configuration.q}")
         viz.display(configuration.q)
+        print("Configuration displayed")
         t += dt
         if t > max_frame:
             print("Restarting animation")
             t = init_frame
-        time.sleep(time_between_frames)
+        #frame = viz.captureImage()
+        print("Frame captured")
+        #animation_frames.append(frame[:,:,:3])
+        time.sleep(dt)
 
-        frame = viz.captureImage()
-        animation_frames.append(frame[:,:,:3])
+
+        #if frame is None:
+         #   print("Error: Frame capture failed.")
+         #   break
+
+        #animation_frames.append(frame[:,:,:3])
     
     return animation_frames
     
@@ -346,9 +363,9 @@ def main():
     
     parser.add_argument(
         "--transformation_values",
-        type=float,
+        type=np.array,
         nargs="+",
-        default=[np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.],
+        default=np.array([np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.]),
         help="List of 9 values [alpha, beta, gamma, x, y, z, sx, sy, sz]",
     )
     
