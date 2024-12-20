@@ -142,7 +142,21 @@ def get_positions_of_base_frame(niki_positions, music_bpm, perfect_positions=Fal
     base_frame_positions = np.concatenate((x_total.reshape(-1, 1), y_total.reshape(-1, 1), z_total.reshape(-1, 1)), axis=1)
     return base_frame_positions
 
-def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init_frame=35., frames_cut_end=55., nb_turns_in_vid=4, transformation_values=[np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.]):
+def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init_frame=35., frames_cut_end=55., nb_turns_in_vid=4, transformation_values=[np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.], music_length=180):
+    """Animate the robot dancing waltz.
+    
+    Args:
+        robot_name: Name of the robot in the robot_descriptions package
+        music_bpm: Beats per minute of the music
+        init_frame: Initial frame of the video where the robot starts dancing
+        frames_cut_end: Number of frames to cut at the end of the video
+        nb_turns_in_vid: Number of waltz right turns in the video
+        transformation_values: List of 9 values [alpha, beta, gamma, x, y, z, sx, sy, sz]
+        music_length: Length of the music in seconds
+        
+    Returns:
+        animation_frames: List of frames for the animation
+    """
     # Adjusting the sleep time to the music
     max_frame = positions.shape[0] - frames_cut_end
     total_movement_frames = max_frame - init_frame
@@ -150,32 +164,8 @@ def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init
     movement_duration_new_bpm = nb_turns_in_vid*turn_duration_new_bpm
     new_bpm_framerate = total_movement_frames/movement_duration_new_bpm
     time_between_frames = 1/new_bpm_framerate
-    
-    # Getting the optimal transformation matrix to align the movement with the (x, y) plane
-    head_pose = positions[int(init_frame):int(max_frame), element_markers["head"]]
-    pelvis_pose = positions[int(init_frame):int(max_frame), element_markers["pelvis"]]
-    r_foot_pose = positions[int(init_frame):int(max_frame), element_markers["r_foot"]]
-    l_foot_pose = positions[int(init_frame):int(max_frame), element_markers["l_foot"]]
 
-    def cost(rot_angles):
-        trans_mat = get_transformation_matrix(rot_angles)
-        transformed_head = apply_transformation(transformation_matrix=trans_mat, positions=head_pose)
-        transformed_pelvis = apply_transformation(transformation_matrix=trans_mat, positions=pelvis_pose)
-        transformed_r_foot = apply_transformation(transformation_matrix=trans_mat, positions=r_foot_pose)
-        transformed_l_foot = apply_transformation(transformation_matrix=trans_mat, positions=l_foot_pose)
-
-        cost = np.sum(transformed_head[:, 2] - 1.5)**2
-        cost += np.sum(transformed_pelvis[:, 0] - transformed_head[:, 0])**2
-        cost += np.sum(transformed_pelvis[:, 1] - transformed_head[:, 1])**2
-        cost += np.abs(np.sum(transformed_l_foot[:, 2]))
-        cost += np.abs(np.sum(transformed_r_foot[:, 2]))
-        # cost = np.var(transformed_pelvis[:, 2])
-        # cost += np.mean(transformed_feet[:, 1] - transformed_head[:, 1])**2
-        return cost
-
-    # values_opt = fmin_bfgs(cost, values_0)
     trans_mat = get_transformation_matrix(transformation_values)
-
     # Apply transformation matrix to all the positions
     transformed_positions = apply_transformation(transformation_matrix=trans_mat, positions=positions)
 
@@ -211,10 +201,6 @@ def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init
             """
             T = self.init.copy()
             position = element_positions[self.element_name][int(t)]
-            # R = T.rotation
-            # R = np.dot(R, pin.utils.rpyToMatrix(0., 0., np.pi / 2))
-            # R = np.dot(R, pin.utils.rpyToMatrix(0., -np.pi, 0.))
-            # T.rotation = R
             T.translation = position
             return T
 
@@ -254,7 +240,7 @@ def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init
         )
         
     posture_task = PostureTask(
-        cost=1e-1,  # [cost] / [rad]
+        cost=1e-1,
     )
 
     tasks = [element_tasks[element] for element in element_markers]
@@ -288,12 +274,10 @@ def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init
     if "quadprog" in qpsolvers.available_solvers:
         solver = "quadprog"
 
-    # rate = RateLimiter(frequency=200., warn=False)
-    # dt = rate.period
     dt = 1.
     t = init_frame  # [s]
     animation_frames = []
-    nb_frames = music_lenghts * time_between_frames
+    nb_frames = music_length * time_between_frames
 
     for i in range(nb_frames):
         # Update task targets
@@ -359,6 +343,21 @@ def main():
         default=4,
         help="Number of waltz right turns in the video",
     )
+    
+    parser.add_argument(
+        "--transformation_values",
+        type=float,
+        nargs="+",
+        default=[np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.],
+        help="List of 9 values [alpha, beta, gamma, x, y, z, sx, sy, sz]",
+    )
+    
+    parser.add_argument(
+        "--music_length",
+        type=int,
+        default=180,
+        help="Length of the music in seconds",
+    )
 
     args = parser.parse_args()
     animate_robot_dancing(
@@ -367,6 +366,8 @@ def main():
         args.init_frame,
         args.frames_cut_end,
         args.nb_turns_in_vid,
+        args.transformation_values,
+        args.music_length,
     )
 
 if __name__ == "__main__":
