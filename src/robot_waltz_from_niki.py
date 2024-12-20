@@ -3,9 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-#TODO CVT: - Jouer avec le poids des joints pour voir si on peut améliorer le mouvement
-# - Plot le mouvement le mouvement du robot en 2D (x, y) sur matplotlib
-# - Pour cela voir à quelle frame il revient sur son point de départ
+#TODO CVT: 
 # - Corriger la reconnaissance du rythme - Jouer le time.sleep sur chaque frame.
 # - Générer la vidéo.
 
@@ -325,29 +323,34 @@ if __name__ == "__main__":
         default="atlas_v4_description",
         help="Robot name, e.g. 'atlas_v4_description'",
     )
+
     parser.add_argument(
         "--bpm",
         type=int,
         default=187,
         help="Beats per minute of the music",
     )
+
     parser.add_argument(
         "--init_frame",
         type=int,
         default=35,
         help="Initial frame of the video where the robot starts dancing",
     )
+
     parser.add_argument(
         "--frames_cut_end",
         type=int,
         default=55,
         help="Number of frames to cut at the end of the video",
     )
+
     parser.add_argument(
         "--nb_turns_in_vid",
         type=int,
         default=4,
         help="Number of waltz right turns in the video",
     )
+
     args = parser.parse_args()
     animate_robot_dancing(args.robot_name, args.bpm, args.init_frame, args.frames_cut_end, args.nb_turns_in_vid)

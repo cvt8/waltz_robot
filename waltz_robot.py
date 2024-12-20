@@ -4,40 +4,13 @@ import numpy as np
 import cv2
 import scipy.signal
 from pydub import AudioSegment
-from robot_animation import RobotWaltzAnimation
+import src.robot_waltz_from_niki as rwfn
+from src.bpm_detection import get_bpm
 
 #Note: pas encore fonctionnel
 
-
-def get_bpm(file_path):
-    # Load the audio file
-    audio = AudioSegment.from_file(file_path)
-
-    # Convert to mono and get raw data
-    audio = audio.set_channels(1)
-    samples = np.array(audio.get_array_of_samples())
-
-    # Calculate the envelope of the signal
-    envelope = np.abs(scipy.signal.hilbert(samples))
-
-    # Downsample the envelope to reduce computation
-    downsample_factor = 100
-    envelope = scipy.signal.decimate(envelope, downsample_factor)
-
-    # Calculate autocorrelation
-    autocorr = np.correlate(envelope, envelope, mode='full')
-    autocorr = autocorr[len(autocorr) // 2:]
-
-    # Find peaks in the autocorrelation
-    peaks, _ = scipy.signal.find_peaks(autocorr, distance=audio.frame_rate // 2)
-
-    # Calculate the intervals between peaks
-    intervals = np.diff(peaks)
-
-    # Calculate BPM
-    bpm = 60.0 / (np.mean(intervals) * downsample_factor / audio.frame_rate)
-
-    return bpm
+bpm = get_bpm('Chostakovitch_Kitaenko_w2.mp3')
+print(f"BPM: {bpm}")
 
 
 def create_video(animation_frames, audio_file, background_image, output_file, credits_text):
@@ -83,7 +56,9 @@ def create_video(animation_frames, audio_file, background_image, output_file, cr
     os.remove('temp_video.mp4')
     os.remove(credits_image)
 
-if __name__ == '__main__':
+
+
+'''if __name__ == '__main__':
     # Example usage
     file_path = 'Chostakovitch_Kitaenko_w2.mp3'
     bpm = get_bpm(file_path)
@@ -95,4 +70,4 @@ if __name__ == '__main__':
 
     # Example usage
     create_video(animation_frames, 'Chostakovitch_Kitaenko_w2.mp3', 'ballroom.jpg', 'robot_waltz.mp4', 'A video realized by Constantin Vaillant-Tenzer and Charles Monte \n'
-                  + 'Music: Chostakovitch, waltz #2 - D. Kitaenko')
+                  + 'Music: Chostakovitch, waltz #2 - D. Kitaenko')'''
