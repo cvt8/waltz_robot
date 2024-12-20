@@ -55,10 +55,8 @@ def create_video_robot(audio_file, background_image, output_file, credits_text, 
     
     bpm = get_bpm(music_file_path)
 
-    animate_robot_dancing(robot_name, bpm, init_frame, frames_cut_end, nb_turns_in_vid)
-
-    # Load animation frames
-    animation_frames = [cv2.imread(frame) for frame in animation_frames]
+    animation_frames = animate_robot_dancing(robot_name, bpm, init_frame, frames_cut_end, nb_turns_in_vid)
+    
     # Create a video with the robot dancing to the music
     create_video(animation_frames, audio_file, background_image, output_file, credits_text)
 

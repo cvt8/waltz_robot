@@ -143,7 +143,7 @@ def get_positions_of_base_frame(niki_positions, music_bpm, perfect_positions=Fal
     base_frame_positions = np.concatenate((x_total.reshape(-1, 1), y_total.reshape(-1, 1), z_total.reshape(-1, 1)), axis=1)
     return base_frame_positions
 
-def animate_robot_dancing(robot_name, music_bpm, init_frame=35., frames_cut_end=55., nb_turns_in_vid=4):
+def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init_frame=35., frames_cut_end=55., nb_turns_in_vid=4, transformation_values=[np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.]):
     # Adjusting the sleep time to the music
     max_frame = positions.shape[0] - frames_cut_end
     total_movement_frames = max_frame - init_frame
@@ -174,7 +174,6 @@ def animate_robot_dancing(robot_name, music_bpm, init_frame=35., frames_cut_end=
         # cost += np.mean(transformed_feet[:, 1] - transformed_head[:, 1])**2
         return cost
 
-    transformation_values = [np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.]
     # values_opt = fmin_bfgs(cost, values_0)
     trans_mat = get_transformation_matrix(transformation_values)
 
@@ -294,7 +293,10 @@ def animate_robot_dancing(robot_name, music_bpm, init_frame=35., frames_cut_end=
     # dt = rate.period
     dt = 1.
     t = init_frame  # [s]
-    while True:
+    animation_frames = []
+    nb_frames = music_lenghts * time_between_frames
+
+    for i in range(nb_frames):
         # Update task targets
         for element in element_markers:
             element_tasks[element].set_target(element_poses[element].at(t))
@@ -311,7 +313,13 @@ def animate_robot_dancing(robot_name, music_bpm, init_frame=35., frames_cut_end=
             print("Restarting animation")
             t = init_frame
         time.sleep(time_between_frames)
-        
+
+        frame = viz.captureImage()
+        animation_frames.append(frame[:,:,:3])
+    
+    return animation_frames
+    
+  
 
 def main():
     parser = argparse.ArgumentParser(
