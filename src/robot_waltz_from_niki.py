@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Authors: Charles Monte and Constantin Vaillant-Tenzer
 # Date: 2024-12-20 (last update)
-# Usage : python3 robot_waltz_from_niki.py --robot_name atlas_v4_description --bpm 187 --init_frame 35 --frames_cut_end 55 --nb_turns_in_vid 4 --transformation_values 3.141592653589793 0.0 -1.5707963267948966 0.0 0.0 1.0 2.0 2.0 2.0 --music_length 180
+# Usage : python3 robot_waltz_from_niki.py --movement_file valse_constantin.pt --robot_name atlas_v4_description --bpm 187 --init_frame 35 --frames_cut_end 55 --nb_turns_in_vid 4 --transformation_values 3.141592653589793 0.0 -1.5707963267948966 0.0 0.0 1.0 2.0 2.0 2.0 --music_length 180
 # The arguments are optional, the default values are the ones used in the example above.
 # Note that this code is only stable for -robot_name atlas_v4_description as the joints parameters and description of each robots have different names.
 
@@ -34,14 +34,6 @@ except ModuleNotFoundError as exc:
         "Examples need robot_descriptions, "
         "try `pip install robot_descriptions`"
     ) from exc
-
-results = joblib.load('valse_constantin.pt')
-positions = results['pred_xyz_29']
-perfect_positions = False
-
-# We do not use the rotation data, so that the inverse kinematics finds the optimal rotation to adapt to the movement
-element_markers = {"pelvis": 0, "r_hand": 26, "l_hand": 25, "head": 24, "r_foot": 28, "l_foot": 27}
-element_costs = {"pelvis": [1., 0.], "r_hand": [.7, 0.], "l_hand": [.7, 0.], "head": [1., 0.], "r_foot": [1., 0.], "l_foot": [1., 0.]}
 
 def get_transformation_matrix(values):
     """Get the transformation matrix from the parameters.
@@ -145,7 +137,7 @@ def get_positions_of_base_frame(niki_positions, music_bpm, perfect_positions=Fal
     base_frame_positions = np.concatenate((x_total.reshape(-1, 1), y_total.reshape(-1, 1), z_total.reshape(-1, 1)), axis=1)
     return base_frame_positions
 
-def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init_frame=35., frames_cut_end=55., nb_turns_in_vid=4, transformation_values=[np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.], music_length=180):
+def animate_robot_dancing(movement_file='valse_constantin.pt', robot_name="atlas_v4_description", music_bpm=187, init_frame=35., frames_cut_end=55., nb_turns_in_vid=4, transformation_values=[np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.], music_length=180):
     """Animate the robot dancing waltz.
     
     Args:
@@ -160,6 +152,16 @@ def animate_robot_dancing(robot_name="atlas_v4_description", music_bpm=187, init
     Returns:
         animation_frames: List of frames for the animation
     """
+
+    movement_file = 'valse_constantin.pt'
+    results = joblib.load(movement_file)
+    positions = results['pred_xyz_29']
+    perfect_positions = False
+
+    # We do not use the rotation data, so that the inverse kinematics finds the optimal rotation to adapt to the movement
+    element_markers = {"pelvis": 0, "r_hand": 26, "l_hand": 25, "head": 24, "r_foot": 28, "l_foot": 27}
+    element_costs = {"pelvis": [1., 0.], "r_hand": [.7, 0.], "l_hand": [.7, 0.], "head": [1., 0.], "r_foot": [1., 0.], "l_foot": [1., 0.]}
+
     # Adjusting the sleep time to the music
     max_frame = positions.shape[0] - frames_cut_end
     total_movement_frames = max_frame - init_frame
@@ -318,6 +320,13 @@ def main():
     )
 
     parser.add_argument(
+        "--movement_file",
+        type=str,
+        default="valse_constantin.pt",
+        help="Path to the movement file, e.g. 'valse_constantin.pt'",
+    )
+
+    parser.add_argument(
         "--robot_name",
         type=str,
         default="atlas_v4_description",
@@ -369,6 +378,7 @@ def main():
 
     args = parser.parse_args()
     animate_robot_dancing(
+        args.movement_file,
         args.robot_name,
         args.bpm,
         args.init_frame,

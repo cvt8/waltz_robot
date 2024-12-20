@@ -47,16 +47,18 @@
 
 \maketitle
 
+\begin{abstract}
+We produced a code implementing the inverse kinematics of the waltz right turn movement for an humanoid robot. The code takes a music in entry 
+\end{abstract}
+
 
 \section{Introduction}
 
-% TODO @Constantin: Relire, corriger et etoffer si besoin
+The waltz, celebrated for its graceful and seamless movements, is a traditional ballroom dance that emerged in late 18th-century Europe. Derived from the German word walzen, meaning "to turn" or "to glide," the waltz is characterized by its rotational patterns and its distinctive 3/4 time rhythm. As one of the most iconic and enduring dances in both social and competitive settings, it emphasizes close partner coordination and fluid motion. Among its foundational figures, the right-turn holds particular importance, as it involves a couple rotating around a shared axis in a counterclockwise direction, showcasing the waltz's signature elegance. Despite its prominence in dance culture, the waltz—and ballroom dancing in general—remains an underexplored domain in the field of robotic movement and human-robot interaction.
 
-Waltz dancing is not a common research topic among dancing robots. However, to help robots learn how to dance, there are some already known methods like \textbf{learning from observation}\cite{traditional_jap_dance} where the robot chooses from a series of leg tasks the good ones to imitate a dancing human; or \textbf{real-time gesture responsive frameworks}\cite{spectacle_imitation} where the robot generates unpredictable artistic responses to a dancer's movements.
+In robotics research, various methods have been developed to enable robots to learn, imitate, and respond to human dance movements. The learning from observation approach \cite{traditional_jap_dance} enables robots to analyze and replicate key leg movements by observing human dancers, while real-time gesture-responsive frameworks \cite{spectacle_imitation} empower robots to generate dynamic and unpredictable artistic responses to live human input. Specific to ballroom dancing, efforts such as the development of a dance partner robot \cite{ballroom_dance} have focused on achieving human-robot coordination by predicting a human partner's intended movements through physical interaction.
 
-Concerning waltz dancing, a \textbf{dance partner robot}\cite{ballroom_dance} has been developed to realize human-robot coordination by estimating the next intended movement of a human through physical interaction.
-
-Our goal was to code a robot able to dance a waltz right turn using inverse kinematics. To do so, we first implemented a movement acquisition pipeline adapted from various research papers to get the position of joints of interest (feet, pelvis, hands, and head) over time. We then used the joint positions to solve inverse kinematics on a humanoid robot, forcing the robot's joints to follow the ideal positions. Finally, we adapted the rhythm of the movement to fit the BPM of a chosen music.
+This work aims to bridge the gap between robotic motion control and the artistry of dance by programming a humanoid robot to perform the waltz's iconic right-turn. Using inverse kinematics as the foundation, we developed a pipeline for movement acquisition and execution. This involved capturing the temporal positions of key joints—feet, pelvis, hands, and head—using insights from existing research. These joint positions were then used to solve inverse kinematics equations, ensuring the robot followed the ideal waltz trajectory with precision. Furthermore, we synchronized the robot's movements to match the rhythm of a selected musical piece, adapting its tempo to align with the beats per minute (BPM) of the waltz. This integration of movement and rhythm brings us closer to the goal of robots executing sophisticated and synchronized dance sequences in partnership with humans or autonomously.
 
 
 
