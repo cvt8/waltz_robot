@@ -37,6 +37,10 @@ To make a video of yourself dancing the waltz, you can follow these steps:
 4. Record your dance moves using the camera.
 5. Save the video file on your computer.
 
+For intance, we started from this video:
+![](/research/obtain_kinematics_niki/VID20241126155236.mp4) 
+
+
 ### Use Niki to Generate a New Video
 
 To generate a new video using Niki, follow these steps:
@@ -46,9 +50,13 @@ To generate a new video using Niki, follow these steps:
 3. Run the Niki script with the appropriate parameters to generate a new video.
 4. Save the generated video file on your computer.
 
+You will get a video like this:
+![](/research/obtain_kinematics_niki/res_valse_constantin.mp4) 
+
+
 ### Select a Music
 
-Choose a suitable music track to accompany your waltz video. Consider selecting a waltz music piece to match the dance style.
+Choose a suitable music track to accompany your waltz video. Consider selecting a waltz music piece to match the dance style. In our exemple, we use the Waltz#2 of Chostokovitch.
 
 ### Generate Your Implementation and Your Video
 

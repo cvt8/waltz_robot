@@ -26,6 +26,7 @@ from pink import solve_ik
 from pink.tasks import FrameTask, JointCouplingTask, PostureTask
 from pink.visualization import start_meshcat_visualizer
 import csv
+import cv2
 
 try:
     from robot_descriptions.loaders.pinocchio import load_robot_description
@@ -285,7 +286,6 @@ def animate_robot_dancing(movement_file='valse_constantin.pt', robot_name="atlas
         solver = "quadprog"
 
     t = init_frame  # [s]
-    animation_frames = []
     nb_frames = int(music_length / time_between_frames)
 
     for i in range(nb_frames):
@@ -305,12 +305,13 @@ def animate_robot_dancing(movement_file='valse_constantin.pt', robot_name="atlas
             print("Restarting animation")
             t = init_frame
         frame = viz.captureImage()
-        animation_frames.append(frame[:,:,:3])
+        #animation_frames.append(frame[:,:,:3])
         time.sleep(time_between_frames)
 
-        animation_frames.append(frame[:,:,:3])
+        frame_filename = f"frames/frame_{i:04d}.png"
+        cv2.imwrite(frame_filename, frame[:,:,:3])
     
-    return animation_frames
+    #return animation_frames
     
   
 

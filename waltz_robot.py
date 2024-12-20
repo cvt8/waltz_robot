@@ -14,10 +14,13 @@ def create_video_robot(movement_file, audio_file, background_image, output_file,
         background = cv2.imread(background_image)
         height, width, _ = background.shape
 
-        # Create a video writer
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        video_writer = cv2.VideoWriter('temp_video.mp4', fourcc, 30, (width, height))
+        # Calculate the frame rate to match the video length to the music length
+        frame_rate = len(animation_frames) / mus_lenght
 
+        # Create a video writer with the calculated frame rate
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        video_writer = cv2.VideoWriter('temp_video.mp4', fourcc, frame_rate, (width, height))
+        
         # Write animation frames to video
         for frame in animation_frames:
             frame_resized = cv2.resize(frame, (width, height))
@@ -55,8 +58,17 @@ def create_video_robot(movement_file, audio_file, background_image, output_file,
     bpm = get_bpm(audio_file)
     mus_lenght = music_lenght(audio_file)
 
-    animation_frames = animate_robot_dancing(movement_file, robot_name, bpm, init_frame, frames_cut_end, nb_turns_in_vid, transformation_values, mus_lenght)
-    
+    # Animate the robot dancing
+    animate_robot_dancing(movement_file, robot_name, bpm, init_frame, frames_cut_end, nb_turns_in_vid, transformation_values, mus_lenght)
+
+    # Load animation frames
+    animation_frames = []
+    for i in range(len(os.listdir('frames/'))) :
+        frame = cv2.imread(f'frames/frame_{i:04d}.png')
+        if frame is None:
+            break
+        animation_frames.append(frame)
+
     # Create a video with the robot dancing to the music
     create_video(animation_frames, audio_file, background_image, output_file, credits_text)
 
