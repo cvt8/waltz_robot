@@ -9,6 +9,10 @@ __pycache__/
 # Frames
 frames/
 
+# Some video files
+temp_video.mp4
+robot_waltz.mp4
+
 # C extensions
 *.so
 

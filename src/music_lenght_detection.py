@@ -17,3 +17,8 @@ def music_lenght(file_path: str) -> float:
     length = len(audio) / sample_rate
 
     return length
+
+# Test the function
+if __name__ == '__main__':
+    music_file_path = 'Chostakovitch_Kitaenko_w2.mp3'
+    print(music_lenght(music_file_path))

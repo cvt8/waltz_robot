@@ -5,6 +5,17 @@ Authors: Charles Monte and Constantin Vaillant-Tenzer
 
 This project simulates and realizes the inverse kinematics of a robot dancing waltz. We primarily focused on using the Atlas v4 robot from Boston Dynamics. However, our code can be easily adapted to work with any robot by making the necessary semantic adjustments.
 
+## Table of Contents
+
+1. [Project Description](#project-description)
+2. [How to Run the Code](#how-to-run-the-code)
+3. [Repository Organization](#repository-organization)
+4. [Steps - Example Usage](#steps---example-usage)
+5. [How to Contribute](#how-to-contribute)
+6. [How to Cite Our Work](#how-to-cite-our-work)
+7. [Report Link](#report-link)
+8. [YouTube Video Link](#youtube-video-link)
+
 ## How to Run the Code
 
 To generate the video from our code, follow these steps:
@@ -15,6 +26,10 @@ To generate the video from our code, follow these steps:
 4. Activate the conda environment `$ conda activate waltz_robot`
 5. Run the code: `$ python waltz_robot.py`
 6. The generated video will be saved as `waltz_video.mp4` in the project directory.
+
+Note the the execution of the code can take some time, especially if the music is fast and long.
+It is possible to personalize this function with the following arguments (that all have default values that are the one we used):
+`python python waltz_robot.py --music_file_path <path_to_music_file> --record_video_path <path_to_save_video> --background_image_path <path_to_background_image> --transformation_values <transformation_values> --movement_file <path_to_movement_file> --credits_text <credits_text> --init_frame <init_frame> --frames_cut_end <frames_cut_end> --nb_turns_in_vid <nb_turns_in_vid> --robot_name <robot_name>`
 
 ## Repository Organization
 
@@ -37,10 +52,6 @@ To make a video of yourself dancing the waltz, you can follow these steps:
 4. Record your dance moves using the camera.
 5. Save the video file on your computer.
 
-For intance, we started from this video:
-<video src="/research/obtain_kinematics_niki/VID20241126155236.mp4" controls muted></video>
-
-
 ### Use Niki to Generate a New Video
 
 To generate a new video using Niki, follow these steps:
@@ -50,8 +61,6 @@ To generate a new video using Niki, follow these steps:
 3. Run the Niki script with the appropriate parameters to generate a new video.
 4. Save the generated video file on your computer.
 
-You will get a video like this:
-![](/research/obtain_kinematics_niki/res_valse_constantin.mp4) 
 
 ### Select a Music
 
@@ -100,4 +109,4 @@ For a detailed report on our project, please refer to [insert link to the projec
 
 ## YouTube Video Link
 
-To watch a video demonstration of our robot dancing waltz, please visit [insert link to YouTube video].
+To watch a video demonstration of our robot dancing waltz, please visit [[https://youtu.be/1MIFP3BURI0](https://youtu.be/1MIFP3BURI0)].

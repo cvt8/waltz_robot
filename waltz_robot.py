@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# SPDX-License-Identifier: MIT
+# Authors: Charles Monte and Constantin Vaillant-Tenzer
+
+# Description: This script creates a video of a robot dancing to a given music file.
+# The robot's movements are generated using a pre-trained model and the music's BPM.
+# The video is created by combining the robot's movements with a background image and the music.
+# The video is saved to a file with the specified name.
+# Usage: python waltz_robot.py --music_file_path <path_to_music_file> --record_video_path <path_to_save_video> --background_image_path <path_to_background_image> --transformation_values <transformation_values> --movement_file <path_to_movement_file> --credits_text <credits_text> --init_frame <init_frame> --frames_cut_end <frames_cut_end> --nb_turns_in_vid <nb_turns_in_vid> --robot_name <robot_name>
+# All arguments are optional and have default values that are the one we used to create the demonstration video.
+
+# Import necessary libraries
+import argparse
 import os
 import subprocess
 import numpy as np
@@ -9,23 +24,28 @@ from src.music_lenght_detection import music_lenght
 
 def create_video_robot(movement_file, audio_file, background_image, output_file, credits_text, robot_name="atlas_v4_description", init_frame=30, frames_cut_end=55, nb_turns_in_vid=4, transformation_values = [np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.]):
 
-    def create_video(animation_frames, audio_file, background_image, output_file, credits_text):
+    def create_video(audio_file, background_image, output_file, credits_text):
+        frame_folder = 'frames/'
+        mus_length = music_lenght(audio_file)
+
         # Load background image
         background = cv2.imread(background_image)
         height, width, _ = background.shape
 
         # Calculate the frame rate to match the video length to the music length
-        frame_rate = len(animation_frames) / mus_lenght
+        frame_rate = 30
 
         # Create a video writer with the calculated frame rate
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         video_writer = cv2.VideoWriter('temp_video.mp4', fourcc, frame_rate, (width, height))
         
         # Write animation frames to video
-        for frame in animation_frames:
-            frame_resized = cv2.resize(frame, (width, height))
-            combined_frame = cv2.addWeighted(background, 0.5, frame_resized, 0.5, 0)
-            video_writer.write(combined_frame)
+        for i in range(len(os.listdir(frame_folder))) :
+            if i % (len(os.listdir(frame_folder)) // (frame_rate * mus_length)) == 0:
+                frame = cv2.imread(f'frames/frame_{i:04d}.png')
+                frame_resized = cv2.resize(frame, (width, height))
+                combined_frame = cv2.addWeighted(background, 0.5, frame_resized, 0.5, 0)
+                video_writer.write(combined_frame)
 
         video_writer.release()
 
@@ -56,32 +76,73 @@ def create_video_robot(movement_file, audio_file, background_image, output_file,
         os.remove(credits_image)
     
     bpm = get_bpm(audio_file)
-    mus_lenght = music_lenght(audio_file)
+    mus_length = music_lenght(audio_file)
 
     # Animate the robot dancing
-    animate_robot_dancing(movement_file, robot_name, bpm, init_frame, frames_cut_end, nb_turns_in_vid, transformation_values, mus_lenght)
-
-    # Load animation frames
-    animation_frames = []
-    for i in range(len(os.listdir('frames/'))) :
-        frame = cv2.imread(f'frames/frame_{i:04d}.png')
-        if frame is None:
-            break
-        animation_frames.append(frame)
+    animate_robot_dancing(movement_file, robot_name, bpm, init_frame, frames_cut_end, nb_turns_in_vid, transformation_values, mus_length)
 
     # Create a video with the robot dancing to the music
-    create_video(animation_frames, audio_file, background_image, output_file, credits_text)
+    create_video(audio_file, background_image, output_file, credits_text)
 
 
 if __name__ == '__main__':
-    music_file_path = 'Chostakovitch_Kitaenko_w2.mp3'
-    record_video_path = 'robot_waltz.mp4'
-    background_image_path = 'ballroom.jpg'
-    transformation_values = [np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.]
-    movement_file = 'valse_constantin.pt'
 
-    credits_text = 'A video realized by Constantin Vaillant-Tenzer and Charles Monte' + '\n' \
-                   + 'Music: Chostakovitch, waltz #2 - Directed by D. Kitaenko' + '\n' \
+    # Create frames directory if it does not exist
+    if not os.path.exists('frames'):
+        os.makedirs('frames')
 
-    # Example usage
-    create_video_robot(movement_file, music_file_path, background_image_path, record_video_path, credits_text)
+    parser = argparse.ArgumentParser(
+        description='Create a video of a robot dancing to a given music file.')
+    
+    parser.add_argument('music_file_path', 
+                        type=str, 
+                        default='Chostakovitch_Kitaenko_w2.mp3',
+                        help='Path to the music file')
+    
+    parser.add_argument('record_video_path',
+                        type=str,
+                        default='robot_waltz.mp4',
+                        help='Path to save the video file')
+    
+    parser.add_argument('background_image_path',
+                        type=str,
+                        default='ballroom.jpg',
+                        help='Path to the background image')
+    
+    parser.add_argument('transformation_values',
+                        type=list,
+                        default=[np.pi, 0., -np.pi/2, 0., 0., 1., 2., 2., 2.],
+                        help='Transformation values for the robot')
+    
+    parser.add_argument('movement_file',
+                        type=str,
+                        default='valse_constantin.pt',
+                        help='Path to the robot movement file')
+    
+    parser.add_argument('credits_text',
+                        type=str,
+                        default='A video realized by Constantin Vaillant-Tenzer and Charles Monte' + '\n' \
+                                + 'Music: Chostakovitch, waltz #2 - Directed by D. Kitaenko' + '\n',
+                        help='Text to display in the credits')
+
+    parser.add_argument('init_frame',
+                        type=int,
+                        default=30,
+                        help='Initial frame')
+    
+    parser.add_argument('frames_cut_end',
+                        type=int,
+                        default=55,
+                        help='Frames to cut')
+    parser.add_argument('nb_turns_in_vid',
+                        type=int,
+                        default=4,
+                        help='Number of turns in the video')
+    parser.add_argument('robot_name',
+                        type=str,
+                        default='atlas_v4_description',
+                        help='Robot name')
+    
+    args = parser.parse_args()
+
+    create_video_robot(args.movement_file, args.music_file_path, args.background_image_path, args.record_video_path, args.credits_text, args.robot_name, args.init_frame, args.frames_cut_end, args.nb_turn, args.transformation_values)

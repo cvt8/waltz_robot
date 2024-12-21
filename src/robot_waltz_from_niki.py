@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
 # Authors: Charles Monte and Constantin Vaillant-Tenzer
 # Date: 2024-12-20 (last update)
 # Usage : python3 robot_waltz_from_niki.py --movement_file valse_constantin.pt --robot_name atlas_v4_description --bpm 187 --init_frame 35 --frames_cut_end 55 --nb_turns_in_vid 4 --transformation_values 3.141592653589793 0.0 -1.5707963267948966 0.0 0.0 1.0 2.0 2.0 2.0 --music_length 180
 # The arguments are optional, the default values are the ones used in the example above.
 # Note that this code is only stable for -robot_name atlas_v4_description as the joints parameters and description of each robots have different names.
 
+# Possible improvements: Set the good camera position (see https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/jnrh2023/template/visualize.html)
 
 
 """Atlas v4 robot dancing waltz using joint positions etracted with the NIKI algorithm."""
@@ -239,6 +240,7 @@ def animate_robot_dancing(movement_file='valse_constantin.pt', robot_name="atlas
 
     # Set initial robot configuration
     configuration = pink.Configuration(robot.model, robot.data, robot.q0)
+
     viz.display(configuration.q)
 
     # Tasks initialization for IK
@@ -279,6 +281,7 @@ def animate_robot_dancing(movement_file='valse_constantin.pt', robot_name="atlas
             for t in range(transformed_positions.shape[0]):
                 row = [t, element_positions['pelvis'][t], element_positions['r_hand'][t], element_positions['l_hand'][t], element_positions['head'][t], element_positions['r_foot'][t], element_positions['l_foot'][t]]
                 writer.writerow(row)
+    
 
     # Select QP solver
     solver = qpsolvers.available_solvers[0]

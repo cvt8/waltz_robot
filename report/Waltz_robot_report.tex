@@ -63,25 +63,30 @@ This work aims to bridge the gap between robotic motion control and the artistry
 
 
 
-\section{Theory behind the movement}
+\section{Theory Behind the Movement}
 
-% TODO @Constantin: Relire, corriger et etoffer si besoin
+The movement of a dancer during a right turn in the waltz can be effectively modeled by analyzing the trajectory of the dancer’s center of gravity (CoG). 
 
-The movement made during a right turn of the waltz dance can be well described using the movement of the center of gravity of the person dancing. 
+In the waltz, the dancer’s motion can be decomposed into two main components. First, the dancer moves along the perimeter of an ellipse, commonly referred to as the \textbf{ball circle}. Concurrently, the dancer performs a rotation around their own axis, tracing a circular path with a diameter of approximately 1 meter. 
 
-During the dance, the person's movement is split in two summed parts: while moving along the perimeter of an ellipse - most commonly referenced as \textbf{the ball circle} - the dancer turns on himself along the perimeter of a circle with a diameter close to 1 meter.
+Both of these movements are assumed to occur with constant angular velocities.
 
-Both those translations can be estimated to be of constant angular velocities.
+The dancer completes one full rotation around their own axis every 360 beats of the music. Given the known beats per minute (BPM) of the music, the angular velocity around the circle is given by:
 
-The dancer does a full turn around the circle every 360 beats of the music (of known BPM) so the angular velocity around the circle is $\omega_C = \frac{-2\pi \text{BPM}}{6*60}$ while we estimate the dancer to go around the ball room every minute, meaning the angular velocity around the ellipse is $\omega_E = \frac{-2\pi}{60}$. 
+$$\omega_C = \frac{-2\pi \, \text{BPM}}{6 \times 60}.$$
 
-The movement of the center of gravity we aim at reproducing is depicted in Figure~\ref{fig:cog_movement}
+Simultaneously, the dancer moves along the perimeter of the ball circle, completing one revolution every minute. This results in an angular velocity around the ellipse of:
+
+$$\omega_E = \frac{-2\pi}{60}.$$
+
+These two combined motions define the trajectory of the dancer's center of gravity, which we aim to replicate in the robotic model. The simulated movement of the center of gravity over two minutes is illustrated in Figure~\ref{fig:cog_movement}.
 
 \begin{figure}
   \centering
   \includegraphics[width = 0.5 \columnwidth]{img/waltz_cog_movement.png} 
-  \caption{Simulated movement of a Waltz dancer's center of gravity for 2 minutes}\label{fig:cog_movement}
+  \caption{Simulated movement of a Waltz dancer's center of gravity over 2 minutes.}\label{fig:cog_movement}
 \end{figure}
+
 
 \section{Our method}
 
