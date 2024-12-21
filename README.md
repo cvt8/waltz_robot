@@ -1,4 +1,4 @@
-# Make an humanoid robot dance the waltz
+# Make a humanoid robot dance the waltz
 ## Project Description
 
 Authors: Charles Monte and Constantin Vaillant-Tenzer
