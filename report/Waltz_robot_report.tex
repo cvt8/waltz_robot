@@ -48,7 +48,13 @@
 \maketitle
 
 \begin{abstract}
-We produced a code implementing the inverse kinematics of the waltz right turn movement for an humanoid robot. The code takes a music in entry 
+  We developed a system enabling a humanoid robot to perform the waltz right turn, 
+  a foundational movement in ballroom dancing, using inverse kinematics. 
+  The pipeline integrates music tempo synchronization and joint movement extraction derived from video data. 
+  By combining a neural inverse kinematics framework with tailored pre-processing techniques, 
+  the robot's movements were fine-tuned to mimic human precision and elegance. 
+  Results demonstrated the robot's ability to perform synchronized and visually accurate dance movements, 
+  showcasing potential applications in human-robot interaction and artistic robotics
 \end{abstract}
 
 
@@ -95,7 +101,8 @@ These two combined motions define the trajectory of the dancer's center of gravi
 \subsection{Overview of the method}
 To simulate the trajectory done by a dancer with a robot, we have trained a humanoid robot to follow the sequence of movements done by the dancer during a waltz right turn.
 
-To do so, we first had to make the assumption that gravity and other forces applied to the dancer does not affect their movement. We also decided to mainly focus on how well the joints would follow the movement, without centering ourselves on physical constraints like making sure that the robot's feet are always on the ground.
+To do so, we decided to mainly focus on how well the joints would follow the movement, without centering ourselves on physical constraints like making sure that the robot's feet are always on the ground.
+However, we make sur, by using Pink \cite{pink2024} that the center of 
 
 To acquire the kinematics of the waltz right turn with the help of a video and then solve inverse kinematics with a humanoid robot model to fit the acquired movement. 
 After having a robot able to dance the waltz right turn, we only had to fit the robot's movement to the music BPM, by making sure a right turn had the right duration.
@@ -120,7 +127,15 @@ We did not focus long on the first method as its implementation was made using o
 
 \begin{figure}
   \includegraphics[width = 0.99 \columnwidth]{img/pose2sim_pipeline.png}
-  \caption{The Pose2Sim pipeline : This solution extracts 2D keypoints coordinates (using RTM Pose\cite{RTMPose}) to produce an OpenSim result (full-body 3D joint angles), which we use in our pipeline by extracting the information that is interesting from us, ie. the RTMPose output and the full-body 3D joint angles.}\label{fig:pose2sim_pipeline}
+  \caption{The Pose2Sim pipeline : This solution extracts 2D keypoints coordinates (using RTM Pose\cite{RTMPose}) to produce an OpenSim result (full-body 3D joint angles), which we use in our pipeline by extracting the information that is interesting from us, ie. the RTMPose output and the full-body 3D joint angles.}
+  \label{fig:pose2sim_pipeline}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width = 0.45 \columnwidth]{img/image-000001.jpg}
+  \includegraphics[width = 0.45 \columnwidth]{img/image-000130.jpg}
+  \caption{Example of the video we used for the kinematics extraction with niki \cite{li2023niki}. Left: First frame of the video, Right: Middle frame of the video}
+  \label{fig:nikiimage}
 \end{figure}
 
 Thus, we decided to find a new pipeline that could extract both, in an intelligible manner: Pose2Sim\cite{Pose2Sim}. Pose2Sim has been the main pipeline we have used for the extraction of joint positions and angles, mainly because the outputs were directly linking each joint name to an angle and a position. Pose2Sim's global pipeline can be found in Figure~\ref{fig:pose2sim_pipeline}. This solution is not that different from the two proposed above, they follow a similar chain of thought which consists of a 2D pose estimation algorithm (RTM Pose\cite{RTMPose} for Pose2Sim), followed by a block that projects those coordinates to the 3D space, before doing inverse kinematics to find the optimal joint angles to adapt the joint positions to a humanoid model. 
@@ -154,11 +169,10 @@ The transformation of the coordinates to make them parallel to the $(x, y)$ plan
 
 We then only had to solve the inverse kinematics using those joint positions to find the optimal angles automatically.
 
-\subsection{Choice of the robot}
+\subsection{Choice of the Robot}
 
-% TODO @Constantin: Ajouter pourquoi on a choisi AtlasV4 + Relire, corriger et etoffer si besoin
+We examined various humanoid robot models through the Robot Descriptions in Python repository \cite{robot_descriptions_py} to identify one with joint configurations most similar to the output of our Pose2Sim model. After evaluating several options, we selected AtlasV4 as our humanoid model due to its proven ability to perform complex and dynamic movements. This choice was driven by AtlasV4's advanced capabilities, which align well with the type of engaging, fluid motion required for our project. However, it is important to note that our code is designed with flexibility in mind and can be easily adapted to other humanoid robots. To do so, only the joint names would need to be modified accordingly.
 
-We explored the Robot descriptions in Python repo\cite{robot_descriptions_py} to find a humanoid robot with similar joints to our Pose2Sim output, we finally decided to use AtlasV4 as our humanoid model because...
 
 \subsection{Inverse Kinematics}
 To solve the inverse kinematics, we applied Pink\cite{pink2024} which solves differential inverse kinematics by weighted tasks. 
@@ -182,33 +196,104 @@ Concerning the weights, we decided to put all the weights on the joint orientati
 
 \subsection{Rhythm adaptation}
 
-To adapt the rhythm of the movement to the BPM of the music, we simply decided to calculate the ideal time between each frame of the movement to adapt it to the BPM of the music. \\
+To adapt the rhythm of the movement to the BPM of the music, we simply decided to calculate the ideal time between each frame of the movement to adapt it to the BPM of the music. 
 
-To do so, we calculated the time it would take the robot to do 4 full turns around the small circle at the new BPM (as Constantin does 4 full turns during the video) and divide the number of frames by this time to get the new ideal frame rate. The new ideal time between each frame is then the inverse of this frame rate.
+To do so, we calculated the time it would take the robot to do 4 full turns around the small circle at the new BPM (as Constantin does 4 full turns during the video) 
+and divide the number of frames by this time to get the new ideal frame rate. 
+The new ideal time between each frame is then the inverse of this frame rate.
 
-\section{Our results}
+\section{Our Results}
 
-% TODO @Constantin: Ecrire toute cette partie
-% J'ai pensé à plusieurs choses à montrer dans cette partie :
-% - Montrer les résultats de la méthode en 2D avec le graph vu de haut
-% - Montrer les résultats de la méthode en 3D avec le robot qui danse (donner lien de vidéo youtube dans le rapport et ajouter des images du robot qui danse ?)
-% - Montrer les résultats de l'adaptation du rythme à la musique ?
+In this section, we present the results of our approach, demonstrating the robot's ability to execute precise movements and synchronize with the music. 
+To illustrate this, we first show images depicting the motion of the pelvis and the right foot during a waltz turn. These images highlight the robot's capacity to perform the necessary movements accurately, 
+following the rhythm of the music, even at fast tempos (e.g., 187 BPM). 
+The high frame rate in our simulation allows for a detailed breakdown of the dance movements, ensuring fluidity and precision in execution.
 
-\section{Next steps}
+We have generated a video showcasing these results, which is available on \href{https://www.youtube.com/watch?v=1MIFP3BURI0}{YouTube}. 
+This video demonstrates the robot’s dancing capabilities, including its ability to stay in sync with the music’s rhythm. 
+The dance movements can be recreated with any music of your choice by following the instructions provided in the code on GitHub. 
+Additionally, we provide a waltz movement file that can be adapted to different room configurations, offering flexibility for various performance scenarios. 
+This file allows for customizability in the dance, including adjustments to suit different physical spaces.
 
-% TODO @Constantin: Ecrire toute cette partie, j'ai rajouté ce qu'on avait mis dans le poster, à voir si on veut réécrire ou rajouter des choses
+\begin{figure}[h!]
+  \centering
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{img/Pelvis_positions_with_color_scale.png}
+    \caption{Illustration of the pelvis movement during a waltz turn. The robot accurately executes the required motions.}
+    \label{fig:pelvis_turn}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{img/Right Foot_positions_with_color_scale}
+    \caption{Illustration of the right foot movement during a waltz turn. The robot's precise footwork follows the rhythm of the music.}
+    \label{fig:right_foot_turn}
+  \end{minipage}
+\end{figure}
 
-While the results already are satisfying, we identified two further steps that could be added to the pipeline to achieve even better results :
-\begin{enumerate}
-    \item Adding a controlling module to maintain a constant angular velocity on the small circle. This cannot be done by humans and will make the movement look even better.
-    \item Take care of the robot's balance throughout the movement;
-    \item Be able to dance the waltz right turn with a partner.
+For added artistic effect, we incorporated a visual element where the robot appears to float and eventually disappear, creating a dreamlike atmosphere. 
+While this effect adds to the visual appeal, it should be noted that in the actual performance, the robot remains grounded. 
+The disappearing effect is achieved through camera settings, which could be further refined in future iterations of the code.
+
+The entire process, from movement generation to synchronization with music, is highly customizable. By entering execution commands (as detailed in the GitHub repository), users can adjust various parameters to suit their specific needs. 
+This flexibility makes the approach adaptable to different environments, styles of music, and movement configurations.
+
+\begin{figure}
+  \includegraphics[width = 0.7 \columnwidth]{img/ball.png}
+  \caption{Our robot dancing in a ballroom}\label{fig:ballroom}
+\end{figure}
+
+
+\section{Discussion}
+
+While the results obtained in this study are promising, several avenues for further development have been identified that could enhance the performance and applicability of the proposed approach. 
+The following points outline key areas for improvement:
+
+\begin{enumerate} 
+  \item \textbf{Incorporation of a control module for constant angular velocity:} One potential enhancement is the integration of a control module to maintain a constant angular velocity during the small circle of the waltz turn. 
+  Achieving this precise control, which is challenging for human dancers, would contribute to even smoother and more consistent motion. 
+  By stabilizing the angular velocity, the robot’s movement could be rendered with greater accuracy and elegance, further enhancing the visual appeal of the performance.
+  \item \textbf{Stabilization of balance and ground contact:} A critical consideration is the maintenance of the robot’s balance throughout the dance, particularly during rotational movements. 
+  Ensuring that the robot remains stable and maintains proper ground contact during the execution of the waltz turn is essential for realistic performance. 
+  This could be achieved through the integration of balance control algorithms that dynamically adjust the robot's posture and movement to compensate for any deviations in real-time.
+
+  \item \textbf{Partnered dancing using reinforcement learning:} An exciting direction for future work is enabling the robot to dance with a human or another robot. 
+  This would require the application of reinforcement learning (RL) techniques to allow the robot to dynamically adjust to the movements of its partner. 
+  RL could be used to train the robot to learn the necessary coordination, synchronization, and interaction required to perform the waltz in a partnered setting, adding an additional layer of complexity and realism to the dance.
+  
+  \item \textbf{Real-world testing and adaptation:} While the simulation results are promising, it is imperative to test the system on a real robot to validate the performance in practical scenarios. 
+  In particular, the robot will need to adapt to physical constraints such as friction, ground surface variability, and its own weight distribution. 
+  These real-world factors may influence the precision and smoothness of the dance movements, and the control system will need to be calibrated to address these challenges effectively.
 \end{enumerate}
 
-\section{Conclusion}
+  Addressing these challenges will not only improve the fidelity of the robot’s movements but also expand the potential applications of this work. 
+  Future efforts should focus on the refinement of control algorithms, ensuring robust performance in dynamic environments, and exploring human-robot interaction in a collaborative dance context. 
+  By overcoming these limitations, it is possible to achieve even more realistic, interactive, and engaging robotic dance performances.
 
+  \section{Conclusion}
+
+  This work presents a novel approach to programming humanoid robots for artistic movement, exemplified by the waltz right turn. 
+  By leveraging advanced kinematics extraction methods, a humanoid model, 
+  and synchronization with musical tempo, we achieved a fluid and precise representation of this classical dance. 
+  The resulting pipeline is highly adaptable, supporting customization for different humanoid platforms, music styles, and movement configurations.
+
+  Despite these promising results, several challenges remain. 
+  These include refining the robot's balance, ensuring consistent angular velocities, and addressing physical constraints such as maintaining foot contact with the ground. 
+  Future work could explore integrating advanced control modules, expanding the repertoire of dance movements, and enhancing real-time human-robot interactions in co-creative settings. 
+  Ultimately, this research bridges the gap between robotics and performing arts, opening new pathways for robots to contribute to creative and cultural expressions.
+  
 % TODO @Constantin: Ecrire toute cette partie
 % Dans l'idée je pense qu'il faudrait juste essayer de répondre aux problématiques dans l'introduction, quitte à quasi la répéter
+
+\paragraph{Contributions:} Charles Monté and Constantin Vaillant-Tenzer contributed equally to this work. Charles Monte focused on the kinematics extraction part, while Constantin focused on the video generation, rythm synchrony, robot adaptation and benchmark. 
+Both Constantin Vaillant Tenzer and Charles Monte worked on the inverse kinematics part.
+
+\paragraph{Supplementary Material.} You can access the full code and further instructions on our \href{https://github.com/cvt8/waltz_robot}{GitHub page}.
+You can also watch the video of the robot dancing the waltz right turn on \href{https://www.youtube.com/watch?v=1MIFP3BURI0}{YouTube}.
+
+\paragraph{Acknowledgements.} We would like to thank Stépane Scaron for his guidance and support throughout this project. 
+We thank all the teaching community of the robotic class for giving us the opportunity to work on such an interesting project.
 
 \printbibliography[]
 

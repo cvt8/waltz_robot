@@ -4,6 +4,7 @@
 Authors: Charles Monte and Constantin Vaillant-Tenzer
 
 This project simulates and realizes the inverse kinematics of a robot dancing waltz. We primarily focused on using the Atlas v4 robot from Boston Dynamics. However, our code can be easily adapted to work with any robot by making the necessary semantic adjustments.
+It outputs a robot dancing the waltz right turn in rythm on the music of your choice !
 
 ## Table of Contents
 
@@ -109,4 +110,4 @@ For a detailed report on our project, please refer to [insert link to the projec
 
 ## YouTube Video Link
 
-To watch a video demonstration of our robot dancing waltz, please visit [[https://youtu.be/1MIFP3BURI0](https://youtu.be/1MIFP3BURI0)].
+To watch a video demonstration of our robot dancing waltz, please visit [https://youtu.be/1MIFP3BURI0](https://youtu.be/1MIFP3BURI0).
