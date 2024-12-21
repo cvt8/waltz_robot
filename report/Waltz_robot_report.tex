@@ -96,13 +96,11 @@ These two combined motions define the trajectory of the dancer's center of gravi
 
 \section{Our method}
 
-% TODO @Constantin: Relire, corriger et etoffer si besoin
-
 \subsection{Overview of the method}
 To simulate the trajectory done by a dancer with a robot, we have trained a humanoid robot to follow the sequence of movements done by the dancer during a waltz right turn.
 
 To do so, we decided to mainly focus on how well the joints would follow the movement, without centering ourselves on physical constraints like making sure that the robot's feet are always on the ground.
-However, we make sur, by using Pink \cite{pink2024} that the center of 
+However, we make sur, by using Pink \cite{pink2024} that the center of mass remains stable and that the robot does not fall.
 
 To acquire the kinematics of the waltz right turn with the help of a video and then solve inverse kinematics with a humanoid robot model to fit the acquired movement. 
 After having a robot able to dance the waltz right turn, we only had to fit the robot's movement to the music BPM, by making sure a right turn had the right duration.
@@ -188,7 +186,8 @@ $$
 \end{aligned}
 $$
 
-Regarding the python side of things, as Pink revolves around the introduction of tasks, we had to choose which tasks we wanted to solve. We decided to focus on the feet, pelvis, hands, and head, as they are the most important parts of the body for a waltz right turn. 
+Regarding the python side of things, as Pink revolves around the introduction of tasks, we had to choose which tasks we wanted to solve. 
+We decided to focus on the feet, pelvis, hands, and head, as they are the most important parts of the body for a waltz right turn. 
 
 We forced all those joints to follow the positions extracted from the NIKI pipeline using FrameTasks, which are tasks that force a certain frame to follow a certain position and orientation. To keep the robot steady, we added a PostureTask that forces the robot to stay in a certain posture, which we chose to be the initial posture of the robot.
 
@@ -283,16 +282,14 @@ The following points outline key areas for improvement:
   Future work could explore integrating advanced control modules, expanding the repertoire of dance movements, and enhancing real-time human-robot interactions in co-creative settings. 
   Ultimately, this research bridges the gap between robotics and performing arts, opening new pathways for robots to contribute to creative and cultural expressions.
   
-% TODO @Constantin: Ecrire toute cette partie
-% Dans l'idée je pense qu'il faudrait juste essayer de répondre aux problématiques dans l'introduction, quitte à quasi la répéter
 
-\paragraph{Contributions:} Charles Monté and Constantin Vaillant-Tenzer contributed equally to this work. Charles Monte focused on the kinematics extraction part, while Constantin focused on the video generation, rythm synchrony, robot adaptation and benchmark. 
+\subsection*{Contributions:} Charles Monté and Constantin Vaillant-Tenzer contributed equally to this work. Charles Monte focused on the kinematics extraction part, while Constantin focused on the video generation, rythm synchrony, robot adaptation and benchmark. 
 Both Constantin Vaillant Tenzer and Charles Monte worked on the inverse kinematics part.
 
-\paragraph{Supplementary Material.} You can access the full code and further instructions on our \href{https://github.com/cvt8/waltz_robot}{GitHub page}.
+\subsection*{Supplementary Material.} You can access the full code and further instructions on our \href{https://github.com/cvt8/waltz_robot}{GitHub page}.
 You can also watch the video of the robot dancing the waltz right turn on \href{https://www.youtube.com/watch?v=1MIFP3BURI0}{YouTube}.
 
-\paragraph{Acknowledgements.} We would like to thank Stépane Scaron for his guidance and support throughout this project. 
+\subsection*{Acknowledgements.} We would like to thank Stépane Scaron for his guidance and support throughout this project. 
 We thank all the teaching community of the robotic class for giving us the opportunity to work on such an interesting project.
 
 \printbibliography[]
