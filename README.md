@@ -92,21 +92,17 @@ If you would like to contribute to this project, please follow these guidelines:
 If you use our work in your research or project, please cite it using the following LaTeX citation:
 
 ```
-@article{monte_vaillant_tenzer_2024,
+@misc{monte_vaillant_tenzer_2024,
     title={Inverse Kinematics of a Robot Dancing Waltz},
     author={Monte, Charles and Vaillant-Tenzer, Constantin},
-    journal={},
     year={2024},
-    volume={X},
-    number={X},
-    pages={X-X},
-    doi={X.XXX/XXXXXX}
+    url={https://github.com/cvt8/waltz_robot}
 }
 ```
 
 ## Report Link
 
-For a detailed report on our project, please refer to [insert link to the project report].
+For a detailed report on our project, please refer to [our PDF](https://github.com/cvt8/waltz_robot/blob/main/report/Waltz_robot_report.pdf).
 
 ## YouTube Video Link
 
