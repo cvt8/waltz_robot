@@ -30,7 +30,7 @@ To generate the video from our code, follow these steps:
 
 Note the the execution of the code can take some time, especially if the music is fast and long.
 It is possible to personalize this function with the following arguments (that all have default values that are the one we used):
-`python python waltz_robot.py --music_file_path <path_to_music_file> --record_video_path <path_to_save_video> --background_image_path <path_to_background_image> --transformation_values <transformation_values> --movement_file <path_to_movement_file> --credits_text <credits_text> --init_frame <init_frame> --frames_cut_end <frames_cut_end> --nb_turns_in_vid <nb_turns_in_vid> --robot_name <robot_name>`
+`python waltz_robot.py --music_file_path <path_to_music_file> --record_video_path <path_to_save_video> --background_image_path <path_to_background_image> --transformation_values <transformation_values> --movement_file <path_to_movement_file> --credits_text <credits_text> --init_frame <init_frame> --frames_cut_end <frames_cut_end> --nb_turns_in_vid <nb_turns_in_vid> --robot_name <robot_name>`
 
 ## Repository Organization
 
